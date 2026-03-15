@@ -2,7 +2,13 @@ import { useCallback, useState } from "react";
 import { Box, Button, HStack, Separator, Text, VStack } from "@chakra-ui/react";
 import { Download } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
-import { GRADIENT_TYPES, WARP_SHAPES } from "@/types";
+import {
+  GRADIENT_TYPES,
+  WARP_SHAPES,
+  DEFAULT_WARP_RATIO,
+  DEFAULT_WARP_SIZE,
+  DEFAULT_NOISE_RATIO,
+} from "@/types";
 import {
   hexToNormalizedRgb,
   packColorsForShader,
@@ -31,6 +37,7 @@ export function ControlPanel() {
   const setNoiseRatio = useGradientStore((s) => s.setNoiseRatio);
   const setWidth = useGradientStore((s) => s.setWidth);
   const setHeight = useGradientStore((s) => s.setHeight);
+  const pushHistory = useGradientStore((s) => s.pushHistory);
 
   const [exporting, setExporting] = useState(false);
 
@@ -117,7 +124,9 @@ export function ControlPanel() {
               min={0}
               max={1}
               step={0.01}
+              defaultValue={DEFAULT_WARP_RATIO}
               onChange={setWarpRatio}
+              onChangeStart={pushHistory}
             />
             <LabeledSlider
               label="Warp Size"
@@ -125,7 +134,9 @@ export function ControlPanel() {
               min={0}
               max={5}
               step={0.01}
+              defaultValue={DEFAULT_WARP_SIZE}
               onChange={setWarpSize}
+              onChangeStart={pushHistory}
             />
             <LabeledSlider
               label="Noise"
@@ -133,7 +144,9 @@ export function ControlPanel() {
               min={0}
               max={0.2}
               step={0.01}
+              defaultValue={DEFAULT_NOISE_RATIO}
               onChange={setNoiseRatio}
+              onChangeStart={pushHistory}
             />
           </VStack>
 

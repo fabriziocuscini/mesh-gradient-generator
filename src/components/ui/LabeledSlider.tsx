@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { HStack, Slider, Text } from "@chakra-ui/react";
 
 interface LabeledSliderProps {
@@ -6,7 +7,9 @@ interface LabeledSliderProps {
   min: number;
   max: number;
   step: number;
+  defaultValue?: number;
   onChange: (value: number) => void;
+  onChangeStart?: () => void;
 }
 
 export function LabeledSlider({
@@ -15,8 +18,12 @@ export function LabeledSlider({
   min,
   max,
   step,
+  defaultValue,
   onChange,
+  onChangeStart,
 }: LabeledSliderProps) {
+  const snapshotTaken = useRef(false);
+
   return (
     <Slider.Root
       size="sm"
@@ -25,7 +32,16 @@ export function LabeledSlider({
       max={max}
       step={step}
       value={[value]}
-      onValueChange={(e) => onChange(e.value[0])}
+      onValueChange={(e) => {
+        if (!snapshotTaken.current && onChangeStart) {
+          onChangeStart();
+          snapshotTaken.current = true;
+        }
+        onChange(e.value[0]);
+      }}
+      onValueChangeEnd={() => {
+        snapshotTaken.current = false;
+      }}
     >
       <HStack justify="space-between" mb="1">
         <Slider.Label>
@@ -39,7 +55,17 @@ export function LabeledSlider({
         <Slider.Track>
           <Slider.Range />
         </Slider.Track>
-        <Slider.Thumbs />
+        <Slider.Thumb
+          index={0}
+          onDoubleClick={() => {
+            if (defaultValue !== undefined && value !== defaultValue) {
+              onChangeStart?.();
+              onChange(defaultValue);
+            }
+          }}
+        >
+          <Slider.HiddenInput />
+        </Slider.Thumb>
       </Slider.Control>
     </Slider.Root>
   );

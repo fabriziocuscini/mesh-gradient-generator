@@ -8,7 +8,19 @@ function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyZ" && !isInput) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          useGradientStore.getState().redo();
+        } else {
+          useGradientStore.getState().undo();
+        }
+        return;
+      }
+
+      if (isInput) return;
 
       if (e.code === "Space") {
         e.preventDefault();

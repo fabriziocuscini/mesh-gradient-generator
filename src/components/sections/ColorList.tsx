@@ -74,12 +74,14 @@ export function ColorList() {
   );
   const selectedColorId = useGradientStore((s) => s.selectedColorId);
   const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
+  const pushHistory = useGradientStore((s) => s.pushHistory);
 
   const canAdd = colors.length < 10;
   const canRemove = colors.length > 2;
 
   const handlePickerOpenChange = (colorId: string, isOpen: boolean) => {
     if (isOpen) {
+      pushHistory();
       setSelectedColorId(colorId);
     } else {
       setSelectedColorId(null);

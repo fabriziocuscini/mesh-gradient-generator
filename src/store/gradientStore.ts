@@ -33,6 +33,39 @@ function randomWarpShapeIndex(): number {
   return WARP_SHAPES[Math.floor(Math.random() * WARP_SHAPES.length)].id;
 }
 
+const MAX_HISTORY = 100;
+
+interface UndoableState {
+  colors: ColorPoint[];
+  gradientTypeIndex: number;
+  warpShapeIndex: number;
+  warpRatio: number;
+  warpSize: number;
+  noiseRatio: number;
+}
+
+function extractUndoable(s: UndoableState): UndoableState {
+  return {
+    colors: s.colors.map((c) => ({
+      id: c.id,
+      hex: c.hex,
+      position: [c.position[0], c.position[1]] as [number, number],
+    })),
+    gradientTypeIndex: s.gradientTypeIndex,
+    warpShapeIndex: s.warpShapeIndex,
+    warpRatio: s.warpRatio,
+    warpSize: s.warpSize,
+    noiseRatio: s.noiseRatio,
+  };
+}
+
+function makeSnapshot(state: UndoableState & { _past: UndoableState[] }) {
+  return {
+    _past: [...state._past, extractUndoable(state)].slice(-MAX_HISTORY),
+    _future: [] as UndoableState[],
+  };
+}
+
 export interface GradientStore {
   colors: ColorPoint[];
   gradientTypeIndex: number;
@@ -44,6 +77,9 @@ export interface GradientStore {
   height: number;
   highlightedColorId: string | null;
   selectedColorId: string | null;
+
+  _past: UndoableState[];
+  _future: UndoableState[];
 
   setGradientTypeIndex: (index: number) => void;
   setWarpShapeIndex: (index: number) => void;
@@ -63,6 +99,10 @@ export interface GradientStore {
   randomizePalette: () => void;
   setHighlightedColorId: (id: string | null) => void;
   setSelectedColorId: (id: string | null) => void;
+
+  pushHistory: () => void;
+  undo: () => void;
+  redo: () => void;
 }
 
 export const useGradientStore = create<GradientStore>((set) => ({
@@ -77,8 +117,15 @@ export const useGradientStore = create<GradientStore>((set) => ({
   highlightedColorId: null,
   selectedColorId: null,
 
-  setGradientTypeIndex: (index) => set({ gradientTypeIndex: index }),
-  setWarpShapeIndex: (index) => set({ warpShapeIndex: index }),
+  _past: [],
+  _future: [],
+
+  setGradientTypeIndex: (index) =>
+    set((state) => ({ ...makeSnapshot(state), gradientTypeIndex: index })),
+
+  setWarpShapeIndex: (index) =>
+    set((state) => ({ ...makeSnapshot(state), warpShapeIndex: index })),
+
   setWarpRatio: (value) => set({ warpRatio: value }),
   setWarpSize: (value) => set({ warpSize: value }),
   setNoiseRatio: (value) => set({ noiseRatio: value }),
@@ -102,13 +149,19 @@ export const useGradientStore = create<GradientStore>((set) => ({
     set((state) => {
       if (state.colors.length >= 10) return state;
       const safe = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : "#888888";
-      return { colors: [...state.colors, createColorPoint(safe)] };
+      return {
+        ...makeSnapshot(state),
+        colors: [...state.colors, createColorPoint(safe)],
+      };
     }),
 
   removeColor: (id) =>
     set((state) => {
       if (state.colors.length <= 2) return state;
-      return { colors: state.colors.filter((c) => c.id !== id) };
+      return {
+        ...makeSnapshot(state),
+        colors: state.colors.filter((c) => c.id !== id),
+      };
     }),
 
   reorderColors: (fromIndex, toIndex) =>
@@ -118,24 +171,61 @@ export const useGradientStore = create<GradientStore>((set) => ({
       const [moved] = next.splice(fromIndex, 1);
       next.splice(toIndex, 0, moved);
       return {
+        ...makeSnapshot(state),
         colors: next.map((c, i) => ({ ...c, position: positions[i] })),
       };
     }),
 
   randomizePositions: () =>
     set((state) => ({
+      ...makeSnapshot(state),
       colors: state.colors.map((c) => ({ ...c, position: randomPosition() })),
     })),
 
-  loadPalette: (palette) => set({ colors: palette.map(createColorPoint) }),
+  loadPalette: (palette) =>
+    set((state) => ({
+      ...makeSnapshot(state),
+      colors: palette.map(createColorPoint),
+    })),
 
   randomizePalette: () =>
-    set(() => {
+    set((state) => {
       const palette = PALETTES[Math.floor(Math.random() * PALETTES.length)];
-      return { colors: palette.map(createColorPoint) };
+      return {
+        ...makeSnapshot(state),
+        colors: palette.map(createColorPoint),
+      };
     }),
 
   setHighlightedColorId: (id) => set({ highlightedColorId: id }),
   setSelectedColorId: (id) =>
     set({ selectedColorId: id, highlightedColorId: id }),
+
+  pushHistory: () => set((state) => makeSnapshot(state)),
+
+  undo: () =>
+    set((state) => {
+      if (state._past.length === 0) return state;
+      const prev = state._past[state._past.length - 1];
+      return {
+        _past: state._past.slice(0, -1),
+        _future: [...state._future, extractUndoable(state)],
+        ...prev,
+        highlightedColorId: null,
+        selectedColorId: null,
+      };
+    }),
+
+  redo: () =>
+    set((state) => {
+      if (state._future.length === 0) return state;
+      const next = state._future[state._future.length - 1];
+      return {
+        _future: state._future.slice(0, -1),
+        _past: [...state._past, extractUndoable(state)],
+        ...next,
+        highlightedColorId: null,
+        selectedColorId: null,
+      };
+    }),
 }));

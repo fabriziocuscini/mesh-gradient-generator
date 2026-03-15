@@ -27,6 +27,7 @@ export function GradientCanvas() {
   const warpSize = useGradientStore((s) => s.warpSize);
   const noiseRatio = useGradientStore((s) => s.noiseRatio);
   const setColorPosition = useGradientStore((s) => s.setColorPosition);
+  const pushHistory = useGradientStore((s) => s.pushHistory);
   const highlightedColorId = useGradientStore((s) => s.highlightedColorId);
   const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
 
@@ -145,6 +146,7 @@ export function GradientCanvas() {
                   containerRef={containerRef}
                   onDragStart={() => {
                     isDraggingRef.current = true;
+                    pushHistory();
                   }}
                   onDrag={(nx, ny) => setColorPosition(color.id, [nx, ny])}
                   onDragEnd={() => {
