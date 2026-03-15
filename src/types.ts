@@ -55,6 +55,7 @@ export const PALETTES = [
   ["#92B3C9", "#C6D1D1", "#7B8E54", "#F66E56", "#F96656", "#F3F4EC"],
   ["#2483A5", "#E0B94B", "#477459", "#C45408", "#6E9091", "#EFE3D1", "#E4D5B9"],
   ["#0F2F65", "#E687D8", "#347BD1", "#6890E2", "#07265C", "#A88BDF"],
+  ["#F0A202", "#F18805", "#D95D39", "#202C59", "#581F18"],
 ];
 
 export const DEFAULT_GRADIENT_TYPE_INDEX = 4;
