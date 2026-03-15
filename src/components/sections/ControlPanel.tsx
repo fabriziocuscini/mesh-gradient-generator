@@ -1,6 +1,14 @@
 import { useCallback, useState } from "react";
-import { Box, Button, HStack, Separator, Text, VStack } from "@chakra-ui/react";
-import { Download } from "lucide-react";
+import {
+  Box,
+  Button,
+  HStack,
+  IconButton,
+  Separator,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { Download, Github } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import {
   GRADIENT_TYPES,
@@ -19,6 +27,7 @@ import { GradientSelect } from "@/components/ui/GradientSelect";
 import { LabeledSlider } from "@/components/ui/LabeledSlider";
 import { DimensionInput } from "@/components/ui/DimensionInput";
 import { ColorModeButton } from "@/components/ui/color-mode";
+import { Tooltip } from "@/components/ui/tooltip";
 import { ColorList } from "./ColorList";
 
 export function ControlPanel() {
@@ -90,7 +99,25 @@ export function ControlPanel() {
         <Text textStyle="sm" fontWeight="semibold" color="fg">
           Mesh Gradient
         </Text>
-        <ColorModeButton />
+        <HStack gap="0">
+          <Tooltip content="GitHub repository" openDelay={400} closeDelay={0}>
+            <IconButton
+              asChild
+              variant="ghost"
+              aria-label="GitHub repository"
+              size="2xs"
+            >
+              <a
+                href="https://github.com/fabriziocuscini/mesh-gradient-generator"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github />
+              </a>
+            </IconButton>
+          </Tooltip>
+          <ColorModeButton />
+        </HStack>
       </HStack>
 
       <Separator />

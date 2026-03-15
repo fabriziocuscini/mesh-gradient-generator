@@ -93,21 +93,20 @@ All shortcuts are disabled while typing in input fields.
 
 ### Prerequisites
 
-- **Node.js** ≥ 18
-- **npm**, **yarn**, or **pnpm**
+- **Bun** ≥ 1.0
 
 ### Installation
 
 ```bash
 git clone https://github.com/your-username/mesh-gradient-generator.git
 cd mesh-gradient-generator
-npm install
+bun install
 ```
 
 ### Development
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in a WebGL 2–capable browser.
@@ -115,15 +114,15 @@ Open [http://localhost:5173](http://localhost:5173) in a WebGL 2–capable brows
 ### Build for Production
 
 ```bash
-npm run build
-npm run preview
+bun run build
+bun run preview
 ```
 
 ### Linting & Formatting
 
 ```bash
-npm run lint
-npm run format
+bun run lint
+bun run format
 ```
 
 ---
