@@ -95,6 +95,7 @@ export interface GradientStore {
   removeColor: (id: string) => void;
   reorderColors: (fromIndex: number, toIndex: number) => void;
   randomizePositions: () => void;
+  randomizeEffects: () => void;
   loadPalette: (palette: string[]) => void;
   randomizePalette: () => void;
   setHighlightedColorId: (id: string | null) => void;
@@ -180,6 +181,15 @@ export const useGradientStore = create<GradientStore>((set) => ({
     set((state) => ({
       ...makeSnapshot(state),
       colors: state.colors.map((c) => ({ ...c, position: randomPosition() })),
+    })),
+
+  randomizeEffects: () =>
+    set((state) => ({
+      ...makeSnapshot(state),
+      warpShapeIndex: randomWarpShapeIndex(),
+      warpRatio: Math.random(),
+      warpSize: Math.random() * 5,
+      noiseRatio: Math.random() * 0.2,
     })),
 
   loadPalette: (palette) =>

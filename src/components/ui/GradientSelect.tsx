@@ -29,6 +29,7 @@ export function GradientSelect({
     <Stack
       direction={{ base: "column", lg: "row" }}
       justify="space-between"
+      align={{ lg: "center" }}
       width="full"
     >
       <Text textStyle="xs" fontWeight="medium" color="fg.muted" flexShrink={0}>

@@ -8,7 +8,8 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { Download, Github } from "lucide-react";
+import { Download, Github, Shuffle } from "lucide-react";
+import { ActionIconButton } from "@/components/ui/ActionIconButton";
 import { useGradientStore } from "@/store/gradientStore";
 import {
   GRADIENT_TYPES,
@@ -46,6 +47,7 @@ export function ControlPanel() {
   const setNoiseRatio = useGradientStore((s) => s.setNoiseRatio);
   const setWidth = useGradientStore((s) => s.setWidth);
   const setHeight = useGradientStore((s) => s.setHeight);
+  const randomizeEffects = useGradientStore((s) => s.randomizeEffects);
   const pushHistory = useGradientStore((s) => s.pushHistory);
 
   const [exporting, setExporting] = useState(false);
@@ -143,8 +145,18 @@ export function ControlPanel() {
 
           <Separator />
 
-          {/* Sliders */}
+          {/* Effects */}
           <VStack align="stretch" gap="4" px="4">
+            <HStack justify="space-between">
+              <Text textStyle="xs" fontWeight="medium" color="fg">
+                Effects
+              </Text>
+              <ActionIconButton
+                icon={Shuffle}
+                label="Randomize effects"
+                onClick={randomizeEffects}
+              />
+            </HStack>
             <LabeledSlider
               label="Warp"
               value={warpRatio}

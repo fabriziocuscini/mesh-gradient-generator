@@ -24,7 +24,11 @@ function App() {
 
       if (e.code === "Space") {
         e.preventDefault();
-        useGradientStore.getState().randomizePositions();
+        const store = useGradientStore.getState();
+        store.randomizePositions();
+        if (e.shiftKey) {
+          store.randomizeEffects();
+        }
       }
 
       if (e.code === "KeyR") {

@@ -92,7 +92,7 @@ export function ColorList() {
   return (
     <VStack align="stretch" gap="1">
       <HStack justify="space-between">
-        <Text textStyle="xs" fontWeight="medium" color="fg.muted">
+        <Text textStyle="xs" fontWeight="medium" color="fg">
           Colors
         </Text>
         <HStack gap="1">
