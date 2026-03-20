@@ -9,11 +9,17 @@ import {
   type RenderParams,
 } from "@/lib/webgl";
 
-/**
- * Renders the gradient at the given resolution to an offscreen canvas
- * and triggers a PNG download.
- */
-export async function exportPng(params: RenderParams): Promise<void> {
+interface ExportOptions {
+  mime: string;
+  ext: string;
+  /** 0.0–1.0, only used for lossy formats (JPEG, WebP). */
+  quality?: number;
+}
+
+export async function exportImage(
+  params: RenderParams,
+  { mime, ext, quality }: ExportOptions,
+): Promise<void> {
   const canvas = document.createElement("canvas");
   canvas.width = params.resolution[0];
   canvas.height = params.resolution[1];
@@ -34,21 +40,21 @@ export async function exportPng(params: RenderParams): Promise<void> {
   drawQuad(gl, vao!);
 
   const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/png"),
+    canvas.toBlob(resolve, mime, quality),
   );
 
   gl.deleteBuffer(buffer);
   gl.deleteVertexArray(vao);
   gl.deleteProgram(program);
-  const ext = gl.getExtension("WEBGL_lose_context");
-  ext?.loseContext();
+  const glExt = gl.getExtension("WEBGL_lose_context");
+  glExt?.loseContext();
 
-  if (!blob) throw new Error("Failed to create PNG blob");
+  if (!blob) throw new Error(`Failed to create ${ext.toUpperCase()} blob`);
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `mesh-gradient-${params.resolution[0]}x${params.resolution[1]}.png`;
+  a.download = `mesh-gradient-${params.resolution[0]}x${params.resolution[1]}.${ext}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

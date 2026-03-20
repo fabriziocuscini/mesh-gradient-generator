@@ -65,3 +65,30 @@ export const DEFAULT_WARP_SIZE = 1;
 export const DEFAULT_NOISE_RATIO = 0.08;
 export const DEFAULT_WIDTH = 2560;
 export const DEFAULT_HEIGHT = 1440;
+
+export type ExportFormat = "png" | "jpeg" | "webp";
+
+export interface ExportFormatOption {
+  label: string;
+  value: ExportFormat;
+  mime: string;
+  ext: string;
+  lossy: boolean;
+}
+
+export const EXPORT_FORMATS: ExportFormatOption[] = [
+  { label: "PNG", value: "png", mime: "image/png", ext: "png", lossy: false },
+  { label: "JPEG", value: "jpeg", mime: "image/jpeg", ext: "jpg", lossy: true },
+  {
+    label: "WebP",
+    value: "webp",
+    mime: "image/webp",
+    ext: "webp",
+    lossy: true,
+  },
+];
+
+export const DEFAULT_EXPORT_FORMAT: ExportFormat = "png";
+export const DEFAULT_EXPORT_QUALITY = 92;
+export const MIN_EXPORT_QUALITY = 70;
+export const MAX_EXPORT_QUALITY = 100;

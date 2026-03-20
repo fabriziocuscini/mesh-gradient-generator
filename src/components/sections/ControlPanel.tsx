@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -14,16 +14,21 @@ import { useGradientStore } from "@/store/gradientStore";
 import {
   GRADIENT_TYPES,
   WARP_SHAPES,
+  EXPORT_FORMATS,
   DEFAULT_WARP_RATIO,
   DEFAULT_WARP_SIZE,
   DEFAULT_NOISE_RATIO,
+  DEFAULT_EXPORT_QUALITY,
+  MIN_EXPORT_QUALITY,
+  MAX_EXPORT_QUALITY,
+  type ExportFormat,
 } from "@/types";
 import {
   hexToNormalizedRgb,
   packColorsForShader,
   packPositionsForShader,
 } from "@/lib/colors";
-import { exportPng } from "@/lib/export";
+import { exportImage } from "@/lib/export";
 import { GradientSelect } from "@/components/ui/GradientSelect";
 import { LabeledSlider } from "@/components/ui/LabeledSlider";
 import { DimensionInput } from "@/components/ui/DimensionInput";
@@ -39,6 +44,8 @@ export function ControlPanel() {
   const noiseRatio = useGradientStore((s) => s.noiseRatio);
   const width = useGradientStore((s) => s.width);
   const height = useGradientStore((s) => s.height);
+  const exportFormat = useGradientStore((s) => s.exportFormat);
+  const exportQuality = useGradientStore((s) => s.exportQuality);
 
   const setGradientTypeIndex = useGradientStore((s) => s.setGradientTypeIndex);
   const setWarpShapeIndex = useGradientStore((s) => s.setWarpShapeIndex);
@@ -47,30 +54,55 @@ export function ControlPanel() {
   const setNoiseRatio = useGradientStore((s) => s.setNoiseRatio);
   const setWidth = useGradientStore((s) => s.setWidth);
   const setHeight = useGradientStore((s) => s.setHeight);
+  const setExportFormat = useGradientStore((s) => s.setExportFormat);
+  const setExportQuality = useGradientStore((s) => s.setExportQuality);
   const randomizeEffects = useGradientStore((s) => s.randomizeEffects);
   const pushHistory = useGradientStore((s) => s.pushHistory);
 
   const [exporting, setExporting] = useState(false);
 
+  const currentFormat = useMemo(
+    () =>
+      EXPORT_FORMATS.find((f) => f.value === exportFormat) ?? EXPORT_FORMATS[0],
+    [exportFormat],
+  );
+
+  const formatSelectOptions = useMemo(
+    () => EXPORT_FORMATS.map((f) => ({ label: f.label, value: f.value })),
+    [],
+  );
+
   const handleExport = useCallback(async () => {
     setExporting(true);
     try {
       const state = useGradientStore.getState();
-      await exportPng({
-        resolution: [state.width, state.height],
-        time: 0,
-        noiseTime: 0,
-        bgColor: hexToNormalizedRgb(state.colors[0]?.hex ?? "#000000"),
-        colors: packColorsForShader(state.colors.map((c) => c.hex)),
-        positions: packPositionsForShader(state.colors.map((c) => c.position)),
-        numberPoints: state.colors.length,
-        noiseRatio: state.noiseRatio,
-        warpRatio: state.warpRatio,
-        warpSize: state.warpSize,
-        mouse: [0.5, 0.5],
-        gradientTypeIndex: state.gradientTypeIndex,
-        warpShapeIndex: state.warpShapeIndex,
-      });
+      const fmt =
+        EXPORT_FORMATS.find((f) => f.value === state.exportFormat) ??
+        EXPORT_FORMATS[0];
+      await exportImage(
+        {
+          resolution: [state.width, state.height],
+          time: 0,
+          noiseTime: 0,
+          bgColor: hexToNormalizedRgb(state.colors[0]?.hex ?? "#000000"),
+          colors: packColorsForShader(state.colors.map((c) => c.hex)),
+          positions: packPositionsForShader(
+            state.colors.map((c) => c.position),
+          ),
+          numberPoints: state.colors.length,
+          noiseRatio: state.noiseRatio,
+          warpRatio: state.warpRatio,
+          warpSize: state.warpSize,
+          mouse: [0.5, 0.5],
+          gradientTypeIndex: state.gradientTypeIndex,
+          warpShapeIndex: state.warpShapeIndex,
+        },
+        {
+          mime: fmt.mime,
+          ext: fmt.ext,
+          quality: fmt.lossy ? state.exportQuality / 100 : undefined,
+        },
+      );
     } catch (err) {
       console.error("Export failed:", err);
     } finally {
@@ -203,14 +235,30 @@ export function ControlPanel() {
         <Separator />
         <VStack align="stretch" gap="3" px="4" pb="4">
           <Text textStyle="xs" fontWeight="medium" color="fg.muted">
-            Export Size
+            Export
           </Text>
           <DimensionInput
             widthValue={width}
             heightValue={height}
             onWidthChange={setWidth}
             onHeightChange={setHeight}
+            formatValue={exportFormat}
+            formatOptions={formatSelectOptions}
+            onFormatChange={(v) => setExportFormat(v as ExportFormat)}
           />
+          {currentFormat.lossy && (
+            <LabeledSlider
+              label="Quality"
+              value={exportQuality}
+              min={0}
+              max={MAX_EXPORT_QUALITY}
+              step={1}
+              defaultValue={DEFAULT_EXPORT_QUALITY}
+              onChange={(v) =>
+                setExportQuality(Math.max(MIN_EXPORT_QUALITY, v))
+              }
+            />
+          )}
           <Button
             size="sm"
             width="full"
@@ -222,7 +270,7 @@ export function ControlPanel() {
             loadingText="Exporting…"
           >
             <Download size={14} />
-            Download PNG
+            Download {currentFormat.label}
           </Button>
         </VStack>
       </VStack>

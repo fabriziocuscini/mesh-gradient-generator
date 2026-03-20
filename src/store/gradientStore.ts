@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import {
   type ColorPoint,
+  type ExportFormat,
   PALETTES,
   WARP_SHAPES,
   DEFAULT_GRADIENT_TYPE_INDEX,
@@ -9,6 +10,8 @@ import {
   DEFAULT_NOISE_RATIO,
   DEFAULT_WIDTH,
   DEFAULT_HEIGHT,
+  DEFAULT_EXPORT_FORMAT,
+  DEFAULT_EXPORT_QUALITY,
 } from "@/types";
 
 let nextId = 0;
@@ -75,6 +78,8 @@ export interface GradientStore {
   noiseRatio: number;
   width: number;
   height: number;
+  exportFormat: ExportFormat;
+  exportQuality: number;
   highlightedColorId: string | null;
   selectedColorId: string | null;
 
@@ -88,6 +93,8 @@ export interface GradientStore {
   setNoiseRatio: (value: number) => void;
   setWidth: (value: number) => void;
   setHeight: (value: number) => void;
+  setExportFormat: (format: ExportFormat) => void;
+  setExportQuality: (value: number) => void;
 
   setColorHex: (id: string, hex: string) => void;
   setColorPosition: (id: string, position: [number, number]) => void;
@@ -115,6 +122,8 @@ export const useGradientStore = create<GradientStore>((set) => ({
   noiseRatio: DEFAULT_NOISE_RATIO,
   width: DEFAULT_WIDTH,
   height: DEFAULT_HEIGHT,
+  exportFormat: DEFAULT_EXPORT_FORMAT,
+  exportQuality: DEFAULT_EXPORT_QUALITY,
   highlightedColorId: null,
   selectedColorId: null,
 
@@ -132,6 +141,8 @@ export const useGradientStore = create<GradientStore>((set) => ({
   setNoiseRatio: (value) => set({ noiseRatio: value }),
   setWidth: (value) => set({ width: value }),
   setHeight: (value) => set({ height: value }),
+  setExportFormat: (format) => set({ exportFormat: format }),
+  setExportQuality: (value) => set({ exportQuality: value }),
 
   setColorHex: (id, hex) =>
     set((state) => {
