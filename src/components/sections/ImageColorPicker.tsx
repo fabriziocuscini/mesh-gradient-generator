@@ -7,6 +7,7 @@ import {
   FileUpload,
   HStack,
   Icon,
+  IconButton,
   Portal,
   Text,
   VStack,
@@ -14,7 +15,7 @@ import {
 import { ImagePlus, Minus, Plus, Upload } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import { ColorAnchorPoint } from "@/components/ui/ColorAnchorPoint";
-import { ActionIconButton } from "@/components/ui/ActionIconButton";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   extractColorsFromImage,
   sampleColorAtPosition,
@@ -122,13 +123,13 @@ export function ImageColorPicker() {
       size="lg"
       placement="center"
     >
-      <Dialog.Trigger asChild>
-        <ActionIconButton
-          icon={ImagePlus}
-          label="Pick colors from image"
-          onClick={() => {}}
-        />
-      </Dialog.Trigger>
+      <Tooltip content="Upload image" openDelay={400} closeDelay={0}>
+        <Dialog.Trigger asChild>
+          <IconButton aria-label="Upload image" variant="ghost" size="2xs">
+            <ImagePlus size={14} />
+          </IconButton>
+        </Dialog.Trigger>
+      </Tooltip>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>

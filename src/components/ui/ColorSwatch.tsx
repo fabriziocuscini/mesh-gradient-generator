@@ -1,6 +1,6 @@
 import { type Ref } from "react";
 import { Box, HStack, IconButton, Text } from "@chakra-ui/react";
-import { GripVertical, X } from "lucide-react";
+import { GripVertical, Minus } from "lucide-react";
 
 interface ColorSwatchProps {
   hex: string;
@@ -84,7 +84,7 @@ export function ColorSwatch({
             onRemove();
           }}
         >
-          <X />
+          <Minus />
         </IconButton>
       )}
     </HStack>

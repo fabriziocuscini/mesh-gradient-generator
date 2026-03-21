@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Box, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  HStack,
+  IconButton,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
@@ -150,24 +157,6 @@ export function ColorList() {
           Colors
         </Text>
         <HStack gap="1">
-          <ImageColorPicker />
-          {canAdd && (
-            <ActionIconButton
-              icon={Plus}
-              label="Add color"
-              onClick={() => addColor(randomHexColor())}
-            />
-          )}
-          <ActionIconButton
-            icon={Shuffle}
-            label="Randomize positions"
-            onClick={randomizePositions}
-          />
-          <ActionIconButton
-            icon={Palette}
-            label="Randomize palette"
-            onClick={randomizePalette}
-          />
           {isWebAudioSupported && (
             <Tooltip content={clapTooltip} openDelay={400} closeDelay={0}>
               <motion.div
@@ -187,6 +176,17 @@ export function ColorList() {
               </motion.div>
             </Tooltip>
           )}
+          <ActionIconButton
+            icon={Shuffle}
+            label="Randomize positions"
+            onClick={randomizePositions}
+          />
+          <ActionIconButton
+            icon={Palette}
+            label="Randomize palette"
+            onClick={randomizePalette}
+          />
+          <ImageColorPicker />
         </HStack>
       </HStack>
 
@@ -225,6 +225,19 @@ export function ColorList() {
           </AnimatePresence>
         </DragDropProvider>
       </Box>
+
+      {canAdd && (
+        <Button
+          size="xs"
+          variant="outline"
+          rounded="full"
+          alignSelf="start"
+          onClick={() => addColor(randomHexColor())}
+        >
+          <Plus size={10} />
+          Color
+        </Button>
+      )}
     </VStack>
   );
 }
