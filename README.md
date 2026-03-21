@@ -2,7 +2,7 @@
 
 A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 2. Design beautiful, organic gradients with full control over colors, blending styles, warp distortions, and noise — then export at any resolution as PNG, JPEG, or WebP.
 
-**[Live Demo](https://mesh-gradient-generator-sigma.vercel.app/)**
+**[Live Demo](https://mesh-gradient.fabstudio.co.uk/)**
 
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)
