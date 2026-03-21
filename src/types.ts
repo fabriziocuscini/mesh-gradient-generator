@@ -64,8 +64,8 @@ export const DEFAULT_WARP_SHAPE_INDEX = 2;
 export const DEFAULT_WARP_RATIO = 0.4;
 export const DEFAULT_WARP_SIZE = 1;
 export const DEFAULT_NOISE_RATIO = 0.08;
-export const DEFAULT_WIDTH = 2560;
-export const DEFAULT_HEIGHT = 1440;
+export const DEFAULT_WIDTH = 1920;
+export const DEFAULT_HEIGHT = 1080;
 
 export type ExportFormat = "png" | "jpeg" | "webp";
 

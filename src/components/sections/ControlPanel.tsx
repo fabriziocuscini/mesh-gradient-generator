@@ -263,7 +263,7 @@ export function ControlPanel() {
             size="sm"
             width="full"
             variant="solid"
-            colorPalette="ultramarine"
+            colorPalette="gray"
             rounded="full"
             onClick={handleExport}
             loading={exporting}

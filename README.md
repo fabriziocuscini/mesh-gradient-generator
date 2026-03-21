@@ -1,5 +1,7 @@
 # Mesh Gradient Generator
 
+![Mesh Gradient Generator](public/preview.png)
+
 A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 2. Design beautiful, organic gradients with full control over colors, blending styles, warp distortions, and noise — then export at any resolution as PNG, JPEG, or WebP.
 
 **[Live Demo](https://mesh-gradient.fabstudio.co.uk/)**
@@ -63,7 +65,7 @@ Fine-tune distortion with three sliders:
 - **Format selection** — export as **PNG**, **JPEG**, or **WebP**
 - **Quality slider** — adjust compression quality (0–100%) for JPEG and WebP; hidden for lossless PNG
 - Renders to an offscreen WebGL canvas at full resolution and saves as `mesh-gradient-{W}x{H}.{ext}`
-- Default export size: **2560 × 1440**
+- Default export size: **1920 × 1080**
 
 ### Keyboard Shortcuts
 
