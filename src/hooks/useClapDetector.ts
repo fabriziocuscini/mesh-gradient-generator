@@ -44,7 +44,9 @@ export function useClapDetector({
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   const onClapRef = useRef(onClap);
-  onClapRef.current = onClap;
+  useEffect(() => {
+    onClapRef.current = onClap;
+  }, [onClap]);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -182,7 +184,21 @@ export function useClapDetector({
   }, [startDetection]);
 
   useEffect(() => {
-    if (!enabled) {
+    if (!enabled) return;
+
+    if (hasPermission && audioCtxRef.current && streamRef.current) {
+      const ctx = audioCtxRef.current;
+      const ready =
+        ctx.state === "suspended" ? ctx.resume() : Promise.resolve();
+      ready.then(() => {
+        if (analyserRef.current) {
+          clapAnalyserRef.current = analyserRef.current;
+          startDetection();
+        }
+      });
+    }
+
+    return () => {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
@@ -192,23 +208,7 @@ export function useClapDetector({
       }
       clapAnalyserRef.current = null;
       setIsListening(false);
-      return;
-    }
-
-    if (hasPermission && audioCtxRef.current && streamRef.current) {
-      const ctx = audioCtxRef.current;
-      if (ctx.state === "suspended") {
-        ctx.resume().then(() => {
-          if (analyserRef.current) {
-            clapAnalyserRef.current = analyserRef.current;
-            startDetection();
-          }
-        });
-      } else if (analyserRef.current) {
-        clapAnalyserRef.current = analyserRef.current;
-        startDetection();
-      }
-    }
+    };
   }, [enabled, hasPermission, startDetection]);
 
   useEffect(() => {
