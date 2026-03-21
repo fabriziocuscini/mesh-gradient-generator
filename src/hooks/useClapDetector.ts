@@ -53,8 +53,8 @@ export function useClapDetector({
   const rafRef = useRef<number>(0);
   const lastClapRef = useRef<number>(0);
 
-  const timeDomainBuf = useRef<Uint8Array | null>(null);
-  const freqBuf = useRef<Uint8Array | null>(null);
+  const timeDomainBuf = useRef<Uint8Array<ArrayBuffer> | null>(null);
+  const freqBuf = useRef<Uint8Array<ArrayBuffer> | null>(null);
   const baselineHistory = useRef<number[]>([]);
 
   const stopStream = useCallback(() => {

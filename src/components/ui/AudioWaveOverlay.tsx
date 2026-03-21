@@ -4,7 +4,7 @@ import { clapAnalyserRef } from "@/hooks/useClapDetector";
 export function AudioWaveOverlay() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
-  const bufRef = useRef<Uint8Array | null>(null);
+  const bufRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;

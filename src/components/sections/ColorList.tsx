@@ -101,11 +101,15 @@ export function ColorList() {
     flashTimeout.current = setTimeout(() => setClapFlash(false), 300);
   }, []);
 
-  const { isListening, hasPermission, requestPermission, stop } =
-    useClapDetector({
-      onClap: handleClap,
-      enabled: clapEnabled,
-    });
+  const {
+    isListening,
+    hasPermission,
+    requestPermission,
+    stop: _stop,
+  } = useClapDetector({
+    onClap: handleClap,
+    enabled: clapEnabled,
+  });
 
   useEffect(() => {
     setClapDetectionActive(isListening);
