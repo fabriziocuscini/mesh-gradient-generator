@@ -183,6 +183,30 @@ src/
 
 ---
 
+## CI/CD
+
+This project uses **GitHub Actions** for continuous integration and **Vercel** for continuous deployment.
+
+### On every commit
+
+[Husky](https://typicode.github.io/husky/) runs a pre-commit hook that invokes [lint-staged](https://github.com/lint-staged/lint-staged), which checks **ESLint** and **Prettier** on staged files only. If either check fails, the commit is blocked.
+
+### On every push / pull request
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs the full quality gate:
+
+1. **Lint** — `bun run lint`
+2. **Format check** — `bun run format:check`
+3. **Build** — `bun run build` (TypeScript type-check + Vite production build)
+
+Vercel also creates a **preview deployment** for every PR, with the preview URL posted directly on the pull request.
+
+### On merge to main
+
+Vercel automatically deploys to production at [mesh-gradient.fabstudio.co.uk](https://mesh-gradient.fabstudio.co.uk/).
+
+---
+
 ## License
 
 MIT
