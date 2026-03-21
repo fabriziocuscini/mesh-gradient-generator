@@ -7,6 +7,7 @@ import { useGradientStore } from "@/store/gradientStore";
 import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { ActionIconButton } from "@/components/ui/ActionIconButton";
+import { ImageColorPicker } from "@/components/sections/ImageColorPicker";
 import { randomHexColor } from "@/lib/colors";
 
 interface SortableColorItemProps {
@@ -96,6 +97,7 @@ export function ColorList() {
           Colors
         </Text>
         <HStack gap="1">
+          <ImageColorPicker />
           {canAdd && (
             <ActionIconButton
               icon={Plus}
