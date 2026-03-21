@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@chakra-ui/react";
+import { Analytics } from "@vercel/analytics/react";
 import { GradientCanvas } from "@/components/sections/GradientCanvas";
 import { ControlPanel } from "@/components/sections/ControlPanel";
 import { useGradientStore } from "@/store/gradientStore";
@@ -70,28 +71,31 @@ function App() {
   }, []);
 
   return (
-    <Box height="100vh" overflow="hidden" display="flex">
-      <Box flex="1" minWidth="0" height="100%">
-        <GradientCanvas />
-      </Box>
+    <>
+      <Box height="100vh" overflow="hidden" display="flex">
+        <Box flex="1" minWidth="0" height="100%">
+          <GradientCanvas />
+        </Box>
 
-      <Box
-        width="3px"
-        flexShrink={0}
-        cursor="col-resize"
-        bg={{ base: "gray.200", _dark: "whiteAlpha.100" }}
-        _hover={{ bg: { base: "gray.300", _dark: "whiteAlpha.200" } }}
-        transition="background 0.15s"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onDoubleClick={() => setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)}
-      />
+        <Box
+          width="3px"
+          flexShrink={0}
+          cursor="col-resize"
+          bg={{ base: "gray.200", _dark: "whiteAlpha.100" }}
+          _hover={{ bg: { base: "gray.300", _dark: "whiteAlpha.200" } }}
+          transition="background 0.15s"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onDoubleClick={() => setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)}
+        />
 
-      <Box width={`${sidebarWidth}px`} flexShrink={0} height="100%">
-        <ControlPanel />
+        <Box width={`${sidebarWidth}px`} flexShrink={0} height="100%">
+          <ControlPanel />
+        </Box>
       </Box>
-    </Box>
+      <Analytics />
+    </>
   );
 }
 
