@@ -1,14 +1,17 @@
-import { Box, HStack, Text, VStack } from "@chakra-ui/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Box, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
-import { Palette, Plus, Shuffle } from "lucide-react";
+import { Mic, MicOff, Palette, Plus, Shuffle } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { ActionIconButton } from "@/components/ui/ActionIconButton";
+import { Tooltip } from "@/components/ui/tooltip";
 import { ImageColorPicker } from "@/components/sections/ImageColorPicker";
 import { randomHexColor } from "@/lib/colors";
+import { useClapDetector, isWebAudioSupported } from "@/hooks/useClapDetector";
 
 interface SortableColorItemProps {
   color: ColorPoint;
@@ -76,6 +79,47 @@ export function ColorList() {
   const selectedColorId = useGradientStore((s) => s.selectedColorId);
   const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
   const pushHistory = useGradientStore((s) => s.pushHistory);
+  const setClapDetectionActive = useGradientStore(
+    (s) => s.setClapDetectionActive,
+  );
+
+  const [clapEnabled, setClapEnabled] = useState(false);
+  const [clapFlash, setClapFlash] = useState(false);
+  const flashTimeout = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const handleClap = useCallback(() => {
+    useGradientStore.getState().randomizePositions();
+    setClapFlash(true);
+    if (flashTimeout.current) clearTimeout(flashTimeout.current);
+    flashTimeout.current = setTimeout(() => setClapFlash(false), 300);
+  }, []);
+
+  const { isListening, hasPermission, requestPermission, stop } =
+    useClapDetector({
+      onClap: handleClap,
+      enabled: clapEnabled,
+    });
+
+  useEffect(() => {
+    setClapDetectionActive(isListening);
+  }, [isListening, setClapDetectionActive]);
+
+  useEffect(() => {
+    return () => {
+      if (flashTimeout.current) clearTimeout(flashTimeout.current);
+    };
+  }, []);
+
+  const handleClapToggle = useCallback(async () => {
+    if (isListening) {
+      setClapEnabled(false);
+    } else if (hasPermission) {
+      setClapEnabled(true);
+    } else {
+      await requestPermission();
+      setClapEnabled(true);
+    }
+  }, [isListening, hasPermission, requestPermission]);
 
   const canAdd = colors.length < 10;
   const canRemove = colors.length > 2;
@@ -89,6 +133,15 @@ export function ColorList() {
       setHighlightedColorId(null);
     }
   };
+
+  const clapTooltip =
+    hasPermission === false
+      ? "Microphone access denied"
+      : isListening
+        ? "Listening for claps"
+        : "Clap to randomize";
+
+  const MicIcon = isListening ? Mic : MicOff;
 
   return (
     <VStack align="stretch" gap="1">
@@ -115,6 +168,25 @@ export function ColorList() {
             label="Randomize palette"
             onClick={randomizePalette}
           />
+          {isWebAudioSupported && (
+            <Tooltip content={clapTooltip} openDelay={400} closeDelay={0}>
+              <motion.div
+                animate={clapFlash ? { scale: [1, 1.35, 1] } : {}}
+                transition={{ duration: 0.3 }}
+              >
+                <IconButton
+                  aria-label={clapTooltip}
+                  variant={isListening ? "solid" : "ghost"}
+                  colorPalette={isListening ? "blue" : undefined}
+                  size="2xs"
+                  onClick={handleClapToggle}
+                  disabled={hasPermission === false}
+                >
+                  <MicIcon size={14} />
+                </IconButton>
+              </motion.div>
+            </Tooltip>
+          )}
         </HStack>
       </HStack>
 

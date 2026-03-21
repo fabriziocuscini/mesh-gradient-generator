@@ -9,6 +9,7 @@ import {
   hexToNormalizedRgb,
 } from "@/lib/colors";
 import { ColorAnchorPoint } from "@/components/ui/ColorAnchorPoint";
+import { AudioWaveOverlay } from "@/components/ui/AudioWaveOverlay";
 import type { RenderParams } from "@/lib/webgl";
 
 export function GradientCanvas() {
@@ -30,6 +31,7 @@ export function GradientCanvas() {
   const pushHistory = useGradientStore((s) => s.pushHistory);
   const highlightedColorId = useGradientStore((s) => s.highlightedColorId);
   const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
+  const clapDetectionActive = useGradientStore((s) => s.clapDetectionActive);
 
   const highlightedColor = highlightedColorId
     ? colors.find((c) => c.id === highlightedColorId)
@@ -194,6 +196,28 @@ export function GradientCanvas() {
                 onDragEnd={() => {}}
               />
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {clapDetectionActive && (
+          <motion.div
+            key="audio-wave"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: "20%",
+              pointerEvents: "none",
+            }}
+          >
+            <AudioWaveOverlay />
           </motion.div>
         )}
       </AnimatePresence>

@@ -82,6 +82,7 @@ export interface GradientStore {
   exportQuality: number;
   highlightedColorId: string | null;
   selectedColorId: string | null;
+  clapDetectionActive: boolean;
 
   _past: UndoableState[];
   _future: UndoableState[];
@@ -107,6 +108,7 @@ export interface GradientStore {
   randomizePalette: () => void;
   setHighlightedColorId: (id: string | null) => void;
   setSelectedColorId: (id: string | null) => void;
+  setClapDetectionActive: (active: boolean) => void;
 
   pushHistory: () => void;
   undo: () => void;
@@ -126,6 +128,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
   exportQuality: DEFAULT_EXPORT_QUALITY,
   highlightedColorId: null,
   selectedColorId: null,
+  clapDetectionActive: false,
 
   _past: [],
   _future: [],
@@ -221,6 +224,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
   setHighlightedColorId: (id) => set({ highlightedColorId: id }),
   setSelectedColorId: (id) =>
     set({ selectedColorId: id, highlightedColorId: id }),
+  setClapDetectionActive: (active) => set({ clapDetectionActive: active }),
 
   pushHistory: () => set((state) => makeSnapshot(state)),
 
