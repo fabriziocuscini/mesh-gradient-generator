@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Box,
-  Button,
-  HStack,
-  IconButton,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
@@ -101,12 +94,7 @@ export function ColorList() {
     flashTimeout.current = setTimeout(() => setClapFlash(false), 300);
   }, []);
 
-  const {
-    isListening,
-    hasPermission,
-    requestPermission,
-    stop: _stop,
-  } = useClapDetector({
+  const { isListening, hasPermission, requestPermission } = useClapDetector({
     onClap: handleClap,
     enabled: clapEnabled,
   });
@@ -191,6 +179,13 @@ export function ColorList() {
             onClick={randomizePalette}
           />
           <ImageColorPicker />
+          {canAdd && (
+            <ActionIconButton
+              icon={Plus}
+              label="Add color"
+              onClick={() => addColor(randomHexColor())}
+            />
+          )}
         </HStack>
       </HStack>
 
@@ -229,19 +224,6 @@ export function ColorList() {
           </AnimatePresence>
         </DragDropProvider>
       </Box>
-
-      {canAdd && (
-        <Button
-          size="xs"
-          variant="outline"
-          rounded="full"
-          alignSelf="start"
-          onClick={() => addColor(randomHexColor())}
-        >
-          <Plus size={10} />
-          Color
-        </Button>
-      )}
     </VStack>
   );
 }

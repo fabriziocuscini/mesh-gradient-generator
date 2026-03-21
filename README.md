@@ -1,5 +1,7 @@
 # Mesh Gradient Generator
 
+![Mesh Gradient Generator](public/preview.png)
+
 A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 2. Design beautiful, organic gradients with full control over colors, blending styles, warp distortions, and noise — then export at any resolution as PNG, JPEG, or WebP.
 
 **[Live Demo](https://mesh-gradient.fabstudio.co.uk/)**
@@ -63,7 +65,7 @@ Fine-tune distortion with three sliders:
 - **Format selection** — export as **PNG**, **JPEG**, or **WebP**
 - **Quality slider** — adjust compression quality (0–100%) for JPEG and WebP; hidden for lossless PNG
 - Renders to an offscreen WebGL canvas at full resolution and saves as `mesh-gradient-{W}x{H}.{ext}`
-- Default export size: **2560 × 1440**
+- Default export size: **1920 × 1080**
 
 ### Keyboard Shortcuts
 
@@ -178,6 +180,30 @@ src/
     ├── shader.vert                 # Fullscreen quad vertex shader
     └── shader.frag                 # Gradient, warp, and noise fragment shader
 ```
+
+---
+
+## CI/CD
+
+This project uses **GitHub Actions** for continuous integration and **Vercel** for continuous deployment.
+
+### On every commit
+
+[Husky](https://typicode.github.io/husky/) runs a pre-commit hook that invokes [lint-staged](https://github.com/lint-staged/lint-staged), which checks **ESLint** and **Prettier** on staged files only. If either check fails, the commit is blocked.
+
+### On every push / pull request
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs the full quality gate:
+
+1. **Lint** — `bun run lint`
+2. **Format check** — `bun run format:check`
+3. **Build** — `bun run build` (TypeScript type-check + Vite production build)
+
+Vercel also creates a **preview deployment** for every PR, with the preview URL posted directly on the pull request.
+
+### On merge to main
+
+Vercel automatically deploys to production at [mesh-gradient.fabstudio.co.uk](https://mesh-gradient.fabstudio.co.uk/).
 
 ---
 
