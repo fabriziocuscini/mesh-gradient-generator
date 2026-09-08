@@ -34,6 +34,13 @@ A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 
 - **Drag anchor points** — click and drag any color's anchor point directly on the canvas to reposition it in real time
 - **Hover to reveal** — anchor points appear when you hover over the canvas and fade out when you leave
 - **Highlighted feedback** — hovering a color swatch in the panel highlights its corresponding anchor on the canvas
+- **Smooth transitions** — randomising, switching gradient type or warp shape, and undo/redo crossfade between compositions instead of snapping; direct edits such as dragging stay instant, and the fade is skipped when the system prefers reduced motion
+
+### Animation
+
+- **Play the gradient** — press the play button in the Colors header or hit `P` to set the anchor points drifting on slow, desynchronised orbits
+- **Pause keeps the result** — stopping adopts wherever the anchors landed, and a single undo returns to the composition you pressed play on
+- **Holds while you work** — motion stops while the pointer is on an anchor (its dot on the canvas or its row in the list), while you drag one, and while its color picker is open, then resumes from where it froze once you move away
 
 ### Gradient Styles
 
@@ -69,13 +76,15 @@ Fine-tune distortion with three sliders:
 
 ### Keyboard Shortcuts
 
-| Key     | Action                             |
-| ------- | ---------------------------------- |
-| `Space` | Randomise all anchor positions     |
-| `R`     | Randomise the entire color palette |
-| `D`     | Toggle light / dark mode           |
+| Key             | Action                                 |
+| --------------- | -------------------------------------- |
+| `Space`         | Randomise all anchor positions         |
+| `Shift`+`Space` | Randomise anchor positions and effects |
+| `R`             | Randomise the entire color palette     |
+| `P`             | Play / pause the anchor animation      |
+| `D`             | Toggle light / dark mode               |
 
-All shortcuts are disabled while typing in input fields.
+All shortcuts are disabled while typing in input fields, and ignored when a modifier such as `Cmd` or `Ctrl` is held. Each one is also shown in the tooltip of the button it belongs to.
 
 Clap detection also randomises anchor positions when the microphone is enabled.
 
