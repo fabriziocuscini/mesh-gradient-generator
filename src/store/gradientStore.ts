@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { livePositionsRef } from "@/lib/drift";
 import {
   type ColorPoint,
   type ExportFormat,
@@ -110,8 +111,7 @@ export interface GradientStore {
   setHighlightedColorId: (id: string | null) => void;
   setSelectedColorId: (id: string | null) => void;
   setClapDetectionActive: (active: boolean) => void;
-  setPlaying: (playing: boolean) => void;
-  commitPositions: (positions: [number, number][]) => void;
+  togglePlayback: () => void;
 
   pushHistory: () => void;
   undo: () => void;
@@ -229,21 +229,31 @@ export const useGradientStore = create<GradientStore>((set) => ({
   setSelectedColorId: (id) =>
     set({ selectedColorId: id, highlightedColorId: id }),
   setClapDetectionActive: (active) => set({ clapDetectionActive: active }),
-  setPlaying: (playing) => set({ isPlaying: playing }),
-
   /**
-   * Adopt the positions playback left the anchors at. Positions are only
-   * ever animated off-store, so the snapshot taken here still holds the
-   * composition as it was before play was pressed — one undo returns to it.
+   * Start playback, or stop it and adopt the positions the drift left the
+   * anchors at. Both halves of pausing live here so they cannot come apart:
+   * stopping without committing would throw the motion away, and committing
+   * without stopping would fight the frame loop.
+   *
+   * Positions are only ever animated off-store, so the snapshot taken here
+   * still holds the composition as it was before play was pressed — one undo
+   * returns to it.
    */
-  commitPositions: (positions) =>
-    set((state) => ({
-      ...makeSnapshot(state),
-      colors: state.colors.map((c, i) => ({
-        ...c,
-        position: positions[i] ?? c.position,
-      })),
-    })),
+  togglePlayback: () =>
+    set((state) => {
+      if (!state.isPlaying) return { isPlaying: true };
+      const live = livePositionsRef.current;
+      // Paused before the first frame painted: nothing has moved yet.
+      if (!live) return { isPlaying: false };
+      return {
+        ...makeSnapshot(state),
+        isPlaying: false,
+        colors: state.colors.map((c, i) => ({
+          ...c,
+          position: live[i] ?? c.position,
+        })),
+      };
+    }),
 
   pushHistory: () => set((state) => makeSnapshot(state)),
 
