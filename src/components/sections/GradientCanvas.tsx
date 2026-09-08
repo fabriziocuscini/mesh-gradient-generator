@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Box } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useWebGLRenderer } from "@/hooks/useWebGLRenderer";
@@ -27,14 +33,29 @@ const FRAME_INTERVAL_MS = 1000 / PLAYBACK_FPS;
 /** Small enough not to admit the previous display frame — see tick(). */
 const FRAME_TOLERANCE_MS = 1;
 
+/**
+ * How long the outgoing composition takes to fade out from over the new one.
+ *
+ * Shorter than the Reva auth panel's 700ms, which fades once when a panel
+ * appears. Here the same fade fires on every re-roll, and this is a tool you
+ * hold the space bar down on — past roughly half a second the wait to see
+ * what you dealt starts to read as lag rather than polish.
+ */
+const CROSSFADE_MS = 420;
+
 export function GradientCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fadeCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const mousePosRef = useRef<[number, number]>([0.5, 0.5]);
   const isDraggingRef = useRef(false);
   const playStartRef = useRef(0);
   const heldAtRef = useRef<number | null>(null);
   const anchorNodesRef = useRef(new Map<string, HTMLDivElement>());
+  // Seeded from the store rather than 0: a remount partway through a session
+  // would otherwise read every jump so far as one it had missed, and fade in
+  // from a canvas that has never been painted.
+  const nonceSeenRef = useRef(useGradientStore.getState().transitionNonce);
 
   const { render, resize, isReady } = useWebGLRenderer(canvasRef);
   const [showAnchors, setShowAnchors] = useState(false);
@@ -55,6 +76,7 @@ export function GradientCanvas() {
   const isPlaying = useGradientStore((s) => s.isPlaying);
   const hoveredColorId = useGradientStore((s) => s.hoveredColorId);
   const setHoveredColorId = useGradientStore((s) => s.setHoveredColorId);
+  const transitionNonce = useGradientStore((s) => s.transitionNonce);
 
   const highlightedColor = highlightedColorId
     ? colors.find((c) => c.id === highlightedColorId)
@@ -144,6 +166,44 @@ export function GradientCanvas() {
     resize,
     isReady,
   ]);
+
+  // Crossfade discrete jumps. The outgoing frame is copied onto an overlay
+  // that then fades away over the new one, which covers changes no amount of
+  // interpolating parameters could: a warp shape or gradient type is an enum
+  // with nothing in between, and a whole new palette has no midpoint worth
+  // looking at.
+  //
+  // A layout effect, not a passive one: the live canvas still holds the old
+  // pixels at this point, and both paint() and the frame loop are about to
+  // overwrite them. Passive effects can lose that race during playback.
+  useLayoutEffect(() => {
+    if (nonceSeenRef.current === transitionNonce) return;
+    nonceSeenRef.current = transitionNonce;
+
+    const live = canvasRef.current;
+    const fade = fadeCanvasRef.current;
+    if (!live || !fade || live.width === 0) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const ctx = fade.getContext("2d");
+    if (!ctx) return;
+    if (fade.width !== live.width || fade.height !== live.height) {
+      fade.width = live.width;
+      fade.height = live.height;
+    }
+    ctx.clearRect(0, 0, fade.width, fade.height);
+    ctx.drawImage(live, 0, 0);
+
+    // Land at full opacity with no transition, then start one next frame —
+    // set both in the same frame and the browser has nothing to animate from.
+    fade.style.transition = "none";
+    fade.style.opacity = "1";
+    const handle = requestAnimationFrame(() => {
+      fade.style.transition = `opacity ${CROSSFADE_MS}ms ease-out`;
+      fade.style.opacity = "0";
+    });
+    return () => cancelAnimationFrame(handle);
+  }, [transitionNonce]);
 
   useEffect(() => {
     paint();
@@ -270,6 +330,22 @@ export function GradientCanvas() {
       <canvas
         ref={canvasRef}
         style={{ display: "block", width: "100%", height: "100%" }}
+      />
+
+      {/* The outgoing frame, fading out over the new one. Inert: it must
+          never intercept a drag aimed at an anchor underneath it. */}
+      <canvas
+        ref={fadeCanvasRef}
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "block",
+          width: "100%",
+          height: "100%",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
       />
 
       <AnimatePresence>

@@ -70,6 +70,24 @@ function makeSnapshot(state: UndoableState & { _past: UndoableState[] }) {
   };
 }
 
+/**
+ * What every discrete jump needs: an undo snapshot, and a bump of the nonce
+ * the canvas crossfades on.
+ *
+ * Continuous edits use makeSnapshot directly and deliberately don't bump it.
+ * Dragging an anchor, a slider or the colour picker changes the gradient
+ * dozens of times a second, and crossfading each of those would smear the
+ * very thing you are trying to aim.
+ */
+function jump(
+  state: UndoableState & { _past: UndoableState[]; transitionNonce: number },
+) {
+  return {
+    ...makeSnapshot(state),
+    transitionNonce: state.transitionNonce + 1,
+  };
+}
+
 export interface GradientStore {
   colors: ColorPoint[];
   gradientTypeIndex: number;
@@ -86,6 +104,7 @@ export interface GradientStore {
   clapDetectionActive: boolean;
   isPlaying: boolean;
   hoveredColorId: string | null;
+  transitionNonce: number;
 
   _past: UndoableState[];
   _future: UndoableState[];
@@ -136,15 +155,16 @@ export const useGradientStore = create<GradientStore>((set) => ({
   clapDetectionActive: false,
   isPlaying: false,
   hoveredColorId: null,
+  transitionNonce: 0,
 
   _past: [],
   _future: [],
 
   setGradientTypeIndex: (index) =>
-    set((state) => ({ ...makeSnapshot(state), gradientTypeIndex: index })),
+    set((state) => ({ ...jump(state), gradientTypeIndex: index })),
 
   setWarpShapeIndex: (index) =>
-    set((state) => ({ ...makeSnapshot(state), warpShapeIndex: index })),
+    set((state) => ({ ...jump(state), warpShapeIndex: index })),
 
   setWarpRatio: (value) => set({ warpRatio: value }),
   setWarpSize: (value) => set({ warpSize: value }),
@@ -172,7 +192,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
       if (state.colors.length >= 10) return state;
       const safe = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : "#888888";
       return {
-        ...makeSnapshot(state),
+        ...jump(state),
         colors: [...state.colors, createColorPoint(safe)],
       };
     }),
@@ -181,7 +201,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
     set((state) => {
       if (state.colors.length <= 2) return state;
       return {
-        ...makeSnapshot(state),
+        ...jump(state),
         colors: state.colors.filter((c) => c.id !== id),
       };
     }),
@@ -193,20 +213,20 @@ export const useGradientStore = create<GradientStore>((set) => ({
       const [moved] = next.splice(fromIndex, 1);
       next.splice(toIndex, 0, moved);
       return {
-        ...makeSnapshot(state),
+        ...jump(state),
         colors: next.map((c, i) => ({ ...c, position: positions[i] })),
       };
     }),
 
   randomizePositions: () =>
     set((state) => ({
-      ...makeSnapshot(state),
+      ...jump(state),
       colors: state.colors.map((c) => ({ ...c, position: randomPosition() })),
     })),
 
   randomizeEffects: () =>
     set((state) => ({
-      ...makeSnapshot(state),
+      ...jump(state),
       warpShapeIndex: randomWarpShapeIndex(),
       warpRatio: Math.random(),
       warpSize: Math.random() * 5,
@@ -215,7 +235,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
 
   loadPalette: (palette) =>
     set((state) => ({
-      ...makeSnapshot(state),
+      ...jump(state),
       colors: palette.map(createColorPoint),
     })),
 
@@ -223,7 +243,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
     set((state) => {
       const palette = PALETTES[Math.floor(Math.random() * PALETTES.length)];
       return {
-        ...makeSnapshot(state),
+        ...jump(state),
         colors: palette.map(createColorPoint),
       };
     }),
@@ -275,6 +295,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
         _past: state._past.slice(0, -1),
         _future: [...state._future, extractUndoable(state)],
         ...prev,
+        transitionNonce: state.transitionNonce + 1,
         highlightedColorId: null,
         selectedColorId: null,
       };
@@ -288,6 +309,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
         _future: state._future.slice(0, -1),
         _past: [...state._past, extractUndoable(state)],
         ...next,
+        transitionNonce: state.transitionNonce + 1,
         highlightedColorId: null,
         selectedColorId: null,
       };
