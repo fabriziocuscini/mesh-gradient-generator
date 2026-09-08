@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Box } from "@chakra-ui/react";
+import { anchorInset } from "@/lib/anchorPosition";
 
 const CLICK_THRESHOLD = 4;
 
@@ -12,9 +13,13 @@ interface ColorAnchorPointProps {
   onDragEnd: () => void;
   onClick?: () => void;
   containerRef: React.RefObject<HTMLElement | null>;
+  /**
+   * Handle on the positioned element, so playback can move the dot in step
+   * with the shader without a re-render per frame. Whoever takes it owns
+   * clearing the inline `left`/`top` it writes.
+   */
+  nodeRef?: React.Ref<HTMLDivElement>;
 }
-
-const POINT_RADIUS = 14;
 
 export function ColorAnchorPoint({
   hex,
@@ -25,6 +30,7 @@ export function ColorAnchorPoint({
   onDragEnd,
   onClick,
   containerRef,
+  nodeRef,
 }: ColorAnchorPointProps) {
   const pointerOrigin = useRef<{ x: number; y: number } | null>(null);
   const didDrag = useRef(false);
@@ -69,9 +75,10 @@ export function ColorAnchorPoint({
 
   return (
     <Box
+      ref={nodeRef}
       position="absolute"
-      left={`clamp(${POINT_RADIUS}px, ${x * 100}%, calc(100% - ${POINT_RADIUS}px))`}
-      top={`clamp(${POINT_RADIUS}px, ${y * 100}%, calc(100% - ${POINT_RADIUS}px))`}
+      left={anchorInset(x)}
+      top={anchorInset(y)}
       transform="translate(-50%, -50%)"
       cursor="grab"
       _active={{ cursor: "grabbing" }}

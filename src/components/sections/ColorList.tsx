@@ -3,7 +3,7 @@ import { Box, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
-import { Mic, MicOff, Palette, Plus, Shuffle } from "lucide-react";
+import { Mic, MicOff, Palette, Pause, Play, Plus, Shuffle } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/ui/ColorPicker";
@@ -11,6 +11,7 @@ import { ActionIconButton } from "@/components/ui/ActionIconButton";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ImageColorPicker } from "@/components/sections/ImageColorPicker";
 import { randomHexColor } from "@/lib/colors";
+import { livePositionsRef } from "@/lib/drift";
 import { useClapDetector, isWebAudioSupported } from "@/hooks/useClapDetector";
 
 interface SortableColorItemProps {
@@ -82,6 +83,7 @@ export function ColorList() {
   const setClapDetectionActive = useGradientStore(
     (s) => s.setClapDetectionActive,
   );
+  const isPlaying = useGradientStore((s) => s.isPlaying);
 
   const [clapEnabled, setClapEnabled] = useState(false);
   const [clapFlash, setClapFlash] = useState(false);
@@ -120,6 +122,23 @@ export function ColorList() {
     }
   }, [isListening, hasPermission, requestPermission]);
 
+  /**
+   * Pausing adopts wherever the drift left the anchors, so the composition
+   * you stopped on is the one you keep — and since the store held the base
+   * positions untouched throughout, a single undo takes you back to the one
+   * you pressed play on.
+   */
+  const handlePlayToggle = useCallback(() => {
+    const store = useGradientStore.getState();
+    if (!store.isPlaying) {
+      store.setPlaying(true);
+      return;
+    }
+    const live = livePositionsRef.current;
+    if (live) store.commitPositions(live);
+    store.setPlaying(false);
+  }, []);
+
   const canAdd = colors.length < 10;
   const canRemove = colors.length > 2;
 
@@ -149,6 +168,13 @@ export function ColorList() {
           Colors
         </Text>
         <HStack gap="1">
+          <ActionIconButton
+            icon={isPlaying ? Pause : Play}
+            label={isPlaying ? "Pause animation" : "Animate anchor points"}
+            onClick={handlePlayToggle}
+            variant={isPlaying ? "solid" : "ghost"}
+            colorPalette={isPlaying ? "blue" : undefined}
+          />
           {isWebAudioSupported && (
             <Tooltip content={clapTooltip} openDelay={400} closeDelay={0}>
               <motion.div

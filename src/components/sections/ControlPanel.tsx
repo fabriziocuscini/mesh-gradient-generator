@@ -28,6 +28,7 @@ import {
   packColorsForShader,
   packPositionsForShader,
 } from "@/lib/colors";
+import { livePositionsRef } from "@/lib/drift";
 import { exportImage } from "@/lib/export";
 import { GradientSelect } from "@/components/ui/GradientSelect";
 import { LabeledSlider } from "@/components/ui/LabeledSlider";
@@ -86,8 +87,11 @@ export function ControlPanel() {
           noiseTime: 0,
           bgColor: hexToNormalizedRgb(state.colors[0]?.hex ?? "#000000"),
           colors: packColorsForShader(state.colors.map((c) => c.hex)),
+          // Mid-playback the store still holds the base composition, so
+          // take the anchors from the frame actually on screen — otherwise
+          // the download is of a gradient you never saw.
           positions: packPositionsForShader(
-            state.colors.map((c) => c.position),
+            livePositionsRef.current ?? state.colors.map((c) => c.position),
           ),
           numberPoints: state.colors.length,
           noiseRatio: state.noiseRatio,

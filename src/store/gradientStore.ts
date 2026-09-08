@@ -83,6 +83,7 @@ export interface GradientStore {
   highlightedColorId: string | null;
   selectedColorId: string | null;
   clapDetectionActive: boolean;
+  isPlaying: boolean;
 
   _past: UndoableState[];
   _future: UndoableState[];
@@ -109,6 +110,8 @@ export interface GradientStore {
   setHighlightedColorId: (id: string | null) => void;
   setSelectedColorId: (id: string | null) => void;
   setClapDetectionActive: (active: boolean) => void;
+  setPlaying: (playing: boolean) => void;
+  commitPositions: (positions: [number, number][]) => void;
 
   pushHistory: () => void;
   undo: () => void;
@@ -129,6 +132,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
   highlightedColorId: null,
   selectedColorId: null,
   clapDetectionActive: false,
+  isPlaying: false,
 
   _past: [],
   _future: [],
@@ -225,6 +229,21 @@ export const useGradientStore = create<GradientStore>((set) => ({
   setSelectedColorId: (id) =>
     set({ selectedColorId: id, highlightedColorId: id }),
   setClapDetectionActive: (active) => set({ clapDetectionActive: active }),
+  setPlaying: (playing) => set({ isPlaying: playing }),
+
+  /**
+   * Adopt the positions playback left the anchors at. Positions are only
+   * ever animated off-store, so the snapshot taken here still holds the
+   * composition as it was before play was pressed — one undo returns to it.
+   */
+  commitPositions: (positions) =>
+    set((state) => ({
+      ...makeSnapshot(state),
+      colors: state.colors.map((c, i) => ({
+        ...c,
+        position: positions[i] ?? c.position,
+      })),
+    })),
 
   pushHistory: () => set((state) => makeSnapshot(state)),
 
