@@ -103,7 +103,6 @@ export interface GradientStore {
   selectedColorId: string | null;
   clapDetectionActive: boolean;
   isPlaying: boolean;
-  hoveredColorId: string | null;
   transitionNonce: number;
 
   _past: UndoableState[];
@@ -132,7 +131,6 @@ export interface GradientStore {
   setSelectedColorId: (id: string | null) => void;
   setClapDetectionActive: (active: boolean) => void;
   togglePlayback: () => void;
-  setHoveredColorId: (id: string | null) => void;
 
   pushHistory: () => void;
   undo: () => void;
@@ -154,7 +152,6 @@ export const useGradientStore = create<GradientStore>((set) => ({
   selectedColorId: null,
   clapDetectionActive: false,
   isPlaying: false,
-  hoveredColorId: null,
   transitionNonce: 0,
 
   _past: [],
@@ -262,13 +259,6 @@ export const useGradientStore = create<GradientStore>((set) => ({
    * still holds the composition as it was before play was pressed — one undo
    * returns to it.
    */
-  /**
-   * The anchor the pointer is on — its dot on the canvas, or its row in the
-   * colour list. Playback holds still while one is set so a colour you are
-   * reaching for doesn't slide out from under the cursor.
-   */
-  setHoveredColorId: (id) => set({ hoveredColorId: id }),
-
   togglePlayback: () =>
     set((state) => {
       if (!state.isPlaying) return { isPlaying: true };
