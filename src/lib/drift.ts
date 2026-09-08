@@ -2,10 +2,19 @@
  * Anchor drift — the motion model behind the play button.
  *
  * Each anchor gets a sinusoidal offset per axis on top of its stored base
- * position:
+ * position, measured from where that sine already stood when playback
+ * began:
  *
- *   x = base.x + ax * sin(t * fx + px)
- *   y = base.y + ay * sin(t * fy + py)
+ *   x = base.x + ax * (sin(t * fx + px) - sin(px))
+ *   y = base.y + ay * (sin(t * fy + py) - sin(py))
+ *
+ * Subtracting the phase's own value at t = 0 is what makes pressing play
+ * continuous. Without it every anchor starts a full `a * sin(p)` away from
+ * where it sits — up to a whole amplitude, hundreds of pixels on a large
+ * canvas — so the composition visibly snaps before it begins to move. The
+ * phases still do their real job either way: the anchors leave t = 0 at
+ * `a * f * cos(p)`, so they set off at their own speeds and in both
+ * directions rather than swaying as a block.
  *
  * The warp pattern itself stays frozen (u_time = 0) — every bit of the
  * motion comes from the anchors moving, which is what makes it read as a
@@ -75,10 +84,17 @@ export function driftForIndex(index: number): MeshDrift {
   };
 }
 
-/** The offset to add to anchor `index`'s base position at `seconds`. */
+/**
+ * The offset to add to anchor `index`'s base position at `seconds`. Zero at
+ * `seconds` = 0, so playback always starts on the composition already on
+ * screen.
+ */
 export function driftOffset(index: number, seconds: number): [number, number] {
   const { ax, ay, fx, fy, px, py } = driftForIndex(index);
-  return [ax * Math.sin(seconds * fx + px), ay * Math.sin(seconds * fy + py)];
+  return [
+    ax * (Math.sin(seconds * fx + px) - Math.sin(px)),
+    ay * (Math.sin(seconds * fy + py) - Math.sin(py)),
+  ];
 }
 
 /** Base positions offset by their drift at `seconds`. */
