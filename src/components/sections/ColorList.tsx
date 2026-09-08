@@ -84,6 +84,7 @@ export function ColorList() {
   );
   const isPlaying = useGradientStore((s) => s.isPlaying);
   const togglePlayback = useGradientStore((s) => s.togglePlayback);
+  const setHoveredColorId = useGradientStore((s) => s.setHoveredColorId);
 
   const [clapEnabled, setClapEnabled] = useState(false);
   const [clapFlash, setClapFlash] = useState(false);
@@ -226,9 +227,11 @@ export function ColorList() {
                 onColorChange={setColorHex}
                 onRemove={removeColor}
                 onHoverStart={(id) => {
+                  setHoveredColorId(id);
                   if (!selectedColorId) setHighlightedColorId(id);
                 }}
                 onHoverEnd={() => {
+                  setHoveredColorId(null);
                   if (!selectedColorId) setHighlightedColorId(null);
                 }}
               />

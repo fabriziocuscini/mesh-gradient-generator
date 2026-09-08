@@ -33,10 +33,12 @@ export function GradientCanvas() {
   const mousePosRef = useRef<[number, number]>([0.5, 0.5]);
   const isDraggingRef = useRef(false);
   const playStartRef = useRef(0);
+  const heldAtRef = useRef<number | null>(null);
   const anchorNodesRef = useRef(new Map<string, HTMLDivElement>());
 
   const { render, resize, isReady } = useWebGLRenderer(canvasRef);
   const [showAnchors, setShowAnchors] = useState(false);
+  const [draggingAnchor, setDraggingAnchor] = useState(false);
 
   const colors = useGradientStore((s) => s.colors);
   const gradientTypeIndex = useGradientStore((s) => s.gradientTypeIndex);
@@ -50,12 +52,41 @@ export function GradientCanvas() {
   const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
   const clapDetectionActive = useGradientStore((s) => s.clapDetectionActive);
   const isPlaying = useGradientStore((s) => s.isPlaying);
+  const hoveredColorId = useGradientStore((s) => s.hoveredColorId);
+  const setHoveredColorId = useGradientStore((s) => s.setHoveredColorId);
 
   const highlightedColor = highlightedColorId
     ? colors.find((c) => c.id === highlightedColorId)
     : null;
 
-  const renderGradient = useCallback(() => {
+  // Reaching for an anchor shouldn't mean chasing it. Playback holds still
+  // while the pointer is on one — its dot or its row in the list — and while
+  // one is being dragged, which keeps the hold through a drop: the pointer is
+  // still on the dot afterwards, so the motion waits until you leave.
+  //
+  // Checked against the live colours rather than for a bare id, because a
+  // colour deleted from under the pointer never gets to report that the
+  // pointer left it — and a hold nothing can release is a dead play button.
+  const held =
+    isPlaying &&
+    (draggingAnchor || colors.some((c) => c.id === hoveredColorId));
+
+  /**
+   * Seconds of playback so far, frozen for the duration of a hold. Offsets
+   * computed during one — a drag correction, say — have to match the frame
+   * on screen, not where the wall clock has run on to.
+   */
+  const playbackSeconds = useCallback(
+    () =>
+      ((heldAtRef.current ?? performance.now()) - playStartRef.current) / 1000,
+    [],
+  );
+
+  // The one place that decides where the anchors are. The frame loop is not
+  // the only caller — a drag repaints through here, and during a hold that is
+  // the only thing painting at all — so reading positions back out of a ref
+  // the loop had written would show a stale frame the moment it stopped.
+  const paint = useCallback(() => {
     if (!isReady()) return;
     const container = containerRef.current;
     if (!container) return;
@@ -65,15 +96,17 @@ export function GradientCanvas() {
 
     const resolution = resize(width, height);
 
+    const base = colors.map((c) => c.position);
+    const positions = isPlaying ? applyDrift(base, playbackSeconds()) : base;
+    livePositionsRef.current = isPlaying ? positions : null;
+
     const params: RenderParams = {
       resolution,
       time: 0,
       noiseTime: 0,
       bgColor: hexToNormalizedRgb(colors[0]?.hex ?? "#000000"),
       colors: packColorsForShader(colors.map((c) => c.hex)),
-      positions: packPositionsForShader(
-        livePositionsRef.current ?? colors.map((c) => c.position),
-      ),
+      positions: packPositionsForShader(positions),
       numberPoints: colors.length,
       noiseRatio,
       warpRatio,
@@ -84,8 +117,19 @@ export function GradientCanvas() {
     };
 
     render(params);
+
+    // React owns the dots when nothing is playing.
+    if (!isPlaying) return;
+    for (const [i, color] of colors.entries()) {
+      const node = anchorNodesRef.current.get(color.id);
+      if (!node) continue;
+      node.style.left = anchorInset(positions[i][0]);
+      node.style.top = anchorInset(positions[i][1]);
+    }
   }, [
     colors,
+    isPlaying,
+    playbackSeconds,
     gradientTypeIndex,
     warpShapeIndex,
     warpRatio,
@@ -97,8 +141,8 @@ export function GradientCanvas() {
   ]);
 
   useEffect(() => {
-    renderGradient();
-  }, [renderGradient]);
+    paint();
+  }, [paint]);
 
   // The playback clock. Kept out of the frame loop's effect below, which a
   // colour change restarts — reading the start time from there would rewind
@@ -119,11 +163,26 @@ export function GradientCanvas() {
     }
   }, [isPlaying]);
 
+  // Stop the clock for the duration of a hold. Declared above the frame loop
+  // so this cleanup — which hands back the time spent held — runs before the
+  // loop's effect restarts: React fires every cleanup for a commit before any
+  // effect, in declaration order.
+  useEffect(() => {
+    if (!held) return;
+    heldAtRef.current = performance.now();
+    return () => {
+      // Give back the held time rather than letting the drift jump to
+      // wherever it would have reached, so it picks up mid-stride.
+      playStartRef.current += performance.now() - (heldAtRef.current ?? 0);
+      heldAtRef.current = null;
+    };
+  }, [held]);
+
   // Anchors drift off-store: the shader and the dots are driven straight
   // from this loop, leaving the sidebar's colour list and pickers out of
   // the frame budget entirely. The store only hears about it on pause.
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || held) return;
 
     let frame = 0;
     let lastPaintAt = Number.NEGATIVE_INFINITY;
@@ -137,26 +196,12 @@ export function GradientCanvas() {
       // a cap like this ends up painting at double the rate it asked for.
       if (now - lastPaintAt < FRAME_INTERVAL_MS - FRAME_TOLERANCE_MS) return;
       lastPaintAt = now;
-
-      const seconds = (performance.now() - playStartRef.current) / 1000;
-      const live = applyDrift(
-        colors.map((c) => c.position),
-        seconds,
-      );
-      livePositionsRef.current = live;
-      renderGradient();
-
-      for (const [i, color] of colors.entries()) {
-        const node = anchorNodesRef.current.get(color.id);
-        if (!node) continue;
-        node.style.left = anchorInset(live[i][0]);
-        node.style.top = anchorInset(live[i][1]);
-      }
+      paint();
     };
     frame = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(frame);
-  }, [isPlaying, colors, renderGradient]);
+  }, [isPlaying, held, paint]);
 
   const registerAnchorNode = useCallback(
     (id: string) => (node: HTMLDivElement | null) => {
@@ -175,20 +220,19 @@ export function GradientCanvas() {
         setColorPosition(id, [x, y]);
         return;
       }
-      const seconds = (performance.now() - playStartRef.current) / 1000;
-      const [dx, dy] = driftOffset(index, seconds);
+      const [dx, dy] = driftOffset(index, playbackSeconds());
       setColorPosition(id, [x - dx, y - dy]);
     },
-    [setColorPosition],
+    [setColorPosition, playbackSeconds],
   );
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const observer = new ResizeObserver(() => renderGradient());
+    const observer = new ResizeObserver(() => paint());
     observer.observe(container);
     return () => observer.disconnect();
-  }, [renderGradient]);
+  }, [paint]);
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -199,9 +243,9 @@ export function GradientCanvas() {
         (e.clientX - rect.left) / rect.width,
         (e.clientY - rect.top) / rect.height,
       ];
-      renderGradient();
+      paint();
     },
-    [renderGradient],
+    [paint],
   );
 
   return (
@@ -249,13 +293,23 @@ export function GradientCanvas() {
                   y={color.position[1]}
                   containerRef={containerRef}
                   nodeRef={registerAnchorNode(color.id)}
+                  onHoverStart={() => setHoveredColorId(color.id)}
+                  onHoverEnd={() => setHoveredColorId(null)}
                   onDragStart={() => {
                     isDraggingRef.current = true;
+                    setDraggingAnchor(true);
                     pushHistory();
                   }}
                   onDrag={(nx, ny) => handleAnchorDrag(color.id, index, nx, ny)}
                   onDragEnd={() => {
                     isDraggingRef.current = false;
+                    setDraggingAnchor(false);
+                    // Pointer capture suppresses mouseleave for the whole
+                    // drag, so a drop landing away from the dot — dragged past
+                    // the edge, where the dot clamps and the cursor doesn't —
+                    // would otherwise hold playback forever.
+                    const node = anchorNodesRef.current.get(color.id);
+                    if (!node?.matches(":hover")) setHoveredColorId(null);
                     if (!containerRef.current?.matches(":hover")) {
                       setShowAnchors(false);
                     }

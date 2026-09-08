@@ -12,6 +12,8 @@ interface ColorAnchorPointProps {
   onDrag: (x: number, y: number) => void;
   onDragEnd: () => void;
   onClick?: () => void;
+  onHoverStart?: () => void;
+  onHoverEnd?: () => void;
   containerRef: React.RefObject<HTMLElement | null>;
   /**
    * Handle on the positioned element, so playback can move the dot in step
@@ -29,6 +31,8 @@ export function ColorAnchorPoint({
   onDrag,
   onDragEnd,
   onClick,
+  onHoverStart,
+  onHoverEnd,
   containerRef,
   nodeRef,
 }: ColorAnchorPointProps) {
@@ -82,6 +86,8 @@ export function ColorAnchorPoint({
       transform="translate(-50%, -50%)"
       cursor="grab"
       _active={{ cursor: "grabbing" }}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
