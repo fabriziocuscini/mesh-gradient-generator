@@ -190,6 +190,7 @@ export function ControlPanel() {
               <ActionIconButton
                 icon={Shuffle}
                 label="Randomize effects"
+                shortcut="Shift+Space"
                 onClick={randomizeEffects}
               />
             </HStack>

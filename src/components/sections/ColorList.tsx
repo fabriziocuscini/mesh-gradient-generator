@@ -154,6 +154,7 @@ export function ColorList() {
           <ActionIconButton
             icon={isPlaying ? Pause : Play}
             label={isPlaying ? "Pause animation" : "Animate anchor points"}
+            shortcut="P"
             onClick={togglePlayback}
             variant={isPlaying ? "solid" : "ghost"}
             colorPalette={isPlaying ? "blue" : undefined}
@@ -180,11 +181,13 @@ export function ColorList() {
           <ActionIconButton
             icon={Shuffle}
             label="Randomize positions"
+            shortcut="Space"
             onClick={randomizePositions}
           />
           <ActionIconButton
             icon={Palette}
             label="Randomize palette"
+            shortcut="R"
             onClick={randomizePalette}
           />
           <ImageColorPicker />
