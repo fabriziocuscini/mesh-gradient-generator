@@ -49,6 +49,7 @@ export function GradientCanvas() {
   const setColorPosition = useGradientStore((s) => s.setColorPosition);
   const pushHistory = useGradientStore((s) => s.pushHistory);
   const highlightedColorId = useGradientStore((s) => s.highlightedColorId);
+  const selectedColorId = useGradientStore((s) => s.selectedColorId);
   const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
   const clapDetectionActive = useGradientStore((s) => s.clapDetectionActive);
   const isPlaying = useGradientStore((s) => s.isPlaying);
@@ -60,16 +61,20 @@ export function GradientCanvas() {
     : null;
 
   // Reaching for an anchor shouldn't mean chasing it. Playback holds still
-  // while the pointer is on one — its dot or its row in the list — and while
-  // one is being dragged, which keeps the hold through a drop: the pointer is
-  // still on the dot afterwards, so the motion waits until you leave.
+  // while the pointer is on one — its dot or its row in the list — while one
+  // is being dragged, which keeps the hold through a drop (the pointer is
+  // still on the dot afterwards, so the motion waits until you leave), and
+  // for as long as a colour picker is open on one, so a colour can be judged
+  // against a composition that is standing still.
   //
   // Checked against the live colours rather than for a bare id, because a
-  // colour deleted from under the pointer never gets to report that the
-  // pointer left it — and a hold nothing can release is a dead play button.
+  // colour deleted while the pointer is on it — or from inside its own open
+  // picker — never gets to report that it is no longer the one being worked
+  // on, and a hold nothing can release is a dead play button.
   const held =
     isPlaying &&
-    (draggingAnchor || colors.some((c) => c.id === hoveredColorId));
+    (draggingAnchor ||
+      colors.some((c) => c.id === hoveredColorId || c.id === selectedColorId));
 
   /**
    * Seconds of playback so far, frozen for the duration of a hold. Offsets
