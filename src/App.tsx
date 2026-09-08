@@ -30,6 +30,10 @@ function App() {
 
       if (isInput) return;
 
+      // Everything below is a bare key, so let the browser's own chords
+      // through untouched — P in particular sits under Cmd+P for print.
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
       if (e.code === "Space") {
         e.preventDefault();
         const store = useGradientStore.getState();
@@ -41,6 +45,10 @@ function App() {
 
       if (e.code === "KeyR") {
         useGradientStore.getState().randomizePalette();
+      }
+
+      if (e.code === "KeyP") {
+        useGradientStore.getState().togglePlayback();
       }
     };
 
