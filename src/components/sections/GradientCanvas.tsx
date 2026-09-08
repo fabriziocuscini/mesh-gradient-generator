@@ -60,6 +60,9 @@ export function GradientCanvas() {
   const { render, resize, isReady } = useWebGLRenderer(canvasRef);
   const [showAnchors, setShowAnchors] = useState(false);
   const [draggingAnchor, setDraggingAnchor] = useState(false);
+  // Set only by the dots on the canvas, which is why it lives here rather
+  // than in the store — nothing outside this component has a use for it.
+  const [hoveredAnchorId, setHoveredAnchorId] = useState<string | null>(null);
 
   const colors = useGradientStore((s) => s.colors);
   const gradientTypeIndex = useGradientStore((s) => s.gradientTypeIndex);
@@ -74,29 +77,31 @@ export function GradientCanvas() {
   const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
   const clapDetectionActive = useGradientStore((s) => s.clapDetectionActive);
   const isPlaying = useGradientStore((s) => s.isPlaying);
-  const hoveredColorId = useGradientStore((s) => s.hoveredColorId);
-  const setHoveredColorId = useGradientStore((s) => s.setHoveredColorId);
   const transitionNonce = useGradientStore((s) => s.transitionNonce);
 
   const highlightedColor = highlightedColorId
     ? colors.find((c) => c.id === highlightedColorId)
     : null;
 
-  // Reaching for an anchor shouldn't mean chasing it. Playback holds still
-  // while the pointer is on one — its dot or its row in the list — while one
-  // is being dragged, which keeps the hold through a drop (the pointer is
-  // still on the dot afterwards, so the motion waits until you leave), and
-  // for as long as a colour picker is open on one, so a colour can be judged
-  // against a composition that is standing still.
+  // Playback holds still once you are actually working on an anchor: the
+  // pointer on its dot, where reaching for a moving target is the problem;
+  // a drag, which keeps the hold through the drop, since the pointer is
+  // still on the dot afterwards and the motion waits until you leave; and
+  // an open colour picker, so a colour can be judged against a composition
+  // that is standing still.
+  //
+  // Hovering a row in the colour list is deliberately none of those. It only
+  // highlights that anchor on the canvas, and watching the highlight drift is
+  // worth seeing — nothing is being changed yet.
   //
   // Checked against the live colours rather than for a bare id, because a
-  // colour deleted while the pointer is on it — or from inside its own open
-  // picker — never gets to report that it is no longer the one being worked
-  // on, and a hold nothing can release is a dead play button.
+  // colour deleted while the pointer is on its dot — or from inside its own
+  // open picker — never gets to report that it is no longer the one being
+  // worked on, and a hold nothing can release is a dead play button.
   const held =
     isPlaying &&
     (draggingAnchor ||
-      colors.some((c) => c.id === hoveredColorId || c.id === selectedColorId));
+      colors.some((c) => c.id === hoveredAnchorId || c.id === selectedColorId));
 
   /**
    * Seconds of playback so far, frozen for the duration of a hold. Offsets
@@ -374,8 +379,8 @@ export function GradientCanvas() {
                   y={color.position[1]}
                   containerRef={containerRef}
                   nodeRef={registerAnchorNode(color.id)}
-                  onHoverStart={() => setHoveredColorId(color.id)}
-                  onHoverEnd={() => setHoveredColorId(null)}
+                  onHoverStart={() => setHoveredAnchorId(color.id)}
+                  onHoverEnd={() => setHoveredAnchorId(null)}
                   onDragStart={() => {
                     isDraggingRef.current = true;
                     setDraggingAnchor(true);
@@ -390,7 +395,7 @@ export function GradientCanvas() {
                     // the edge, where the dot clamps and the cursor doesn't —
                     // would otherwise hold playback forever.
                     const node = anchorNodesRef.current.get(color.id);
-                    if (!node?.matches(":hover")) setHoveredColorId(null);
+                    if (!node?.matches(":hover")) setHoveredAnchorId(null);
                     if (!containerRef.current?.matches(":hover")) {
                       setShowAnchors(false);
                     }
