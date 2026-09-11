@@ -38,8 +38,8 @@ A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 
 
 ### Animation
 
-- **Play the gradient** — press the play button in the Colors header or hit `P` to set the anchor points drifting on slow, desynchronised orbits
-- **Pause keeps the result** — stopping adopts wherever the anchors landed, and a single undo returns to the composition you pressed play on
+- **Plays on arrival** — the anchor points are already drifting on slow, desynchronised orbits when the tool loads; press the pause button in the Colors header or hit `P` to stop them, and again to resume. When the system prefers reduced motion the gradient starts still instead
+- **Pause keeps the result** — stopping adopts wherever the anchors landed, and a single undo returns to the composition that was playing
 - **Holds while you work** — motion stops while the pointer is on an anchor (its dot on the canvas or its row in the list), while you drag one, and while its color picker is open, then resumes from where it froze once you move away
 
 ### Gradient Styles
