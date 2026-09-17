@@ -1,3 +1,6 @@
 dist
 node_modules
 bun.lock
+
+# Vendored verbatim from https://github.com/anxndsgn/figui so a re-pull diffs clean.
+src/styles/figui.css
