@@ -1,16 +1,15 @@
-import { type Ref, useCallback, useEffect, useRef, useState } from "react";
-import { Box, Input, InputGroup, Popover, Portal } from "@chakra-ui/react";
+import { type Ref, useRef } from "react";
 import { HexColorPicker } from "react-colorful";
-import { ColorSwatch } from "./ColorSwatch";
+import {
+  ColorChit,
+  ColorInput,
+  InputGroup,
+  InputGroupAddon,
+} from "@/components/ui/input";
+import { Popover, PopoverContent } from "@/components/ui/popover";
+import { ColorRow } from "./ColorRow";
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
-
-function normalizeHex(raw: string): string | null {
-  let v = raw.trim();
-  if (!v.startsWith("#")) v = "#" + v;
-  v = v.slice(0, 7);
-  return HEX_RE.test(v) ? v.toLowerCase() : null;
-}
 
 interface ColorPickerProps {
   hex: string;
@@ -32,94 +31,55 @@ export function ColorPicker({
   dragHandleRef,
 }: ColorPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [draft, setDraft] = useState(hex.replace("#", "").toUpperCase());
+  const safeHex = HEX_RE.test(hex) ? hex : "#000000";
+  const value = safeHex.slice(1).toUpperCase();
 
-  useEffect(() => {
-    setDraft(hex.replace("#", "").toUpperCase());
-  }, [hex]);
-
-  useEffect(() => {
-    if (open) {
-      const id = setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 80);
-      return () => clearTimeout(id);
-    }
-  }, [open]);
-
-  const commit = useCallback(() => {
-    const parsed = normalizeHex(draft);
-    if (parsed) {
-      onChange(parsed);
-    } else {
-      setDraft(hex.replace("#", "").toUpperCase());
-    }
-  }, [draft, hex, onChange]);
+  const commit = (next: string) => {
+    const six = next.slice(0, 6);
+    if (/^[0-9a-fA-F]{6}$/.test(six)) onChange(`#${six.toLowerCase()}`);
+  };
 
   return (
-    <Popover.Root
-      positioning={{ placement: "bottom-start" }}
+    <Popover
       open={open}
-      onOpenChange={(e) => onOpenChange?.(e.open)}
+      onOpenChange={(isOpen) => onOpenChange?.(isOpen)}
+      // Base UI moves focus itself, which is what retires the 80ms timer the
+      // Chakra version needed to outlast its popover mount. It does not select,
+      // though, and typing over the old hex is the point.
+      onOpenChangeComplete={(isOpen) => {
+        if (isOpen) inputRef.current?.select();
+      }}
     >
-      <Popover.Trigger asChild>
-        <Box cursor="pointer">
-          <ColorSwatch
-            hex={hex}
-            onRemove={onRemove}
-            removable={removable}
-            active={open}
-            handleRef={dragHandleRef}
+      <ColorRow
+        hex={safeHex}
+        onChange={onChange}
+        onRemove={onRemove}
+        removable={removable}
+        active={open}
+        handleRef={dragHandleRef}
+      />
+      <PopoverContent
+        className="flex w-[232px] flex-col gap-2"
+        initialFocus={inputRef}
+      >
+        <HexColorPicker color={safeHex} onChange={onChange} />
+        <InputGroup>
+          <InputGroupAddon>
+            <ColorChit color={safeHex} />
+          </InputGroupAddon>
+          <ColorInput
+            ref={inputRef}
+            aria-label="Hex colour"
+            value={value}
+            onValueChange={commit}
+            onCopy={(e) => {
+              e.preventDefault();
+              const selected = window.getSelection()?.toString() ?? value;
+              e.clipboardData.setData("text/plain", `#${selected}`);
+            }}
           />
-        </Box>
-      </Popover.Trigger>
-      <Portal>
-        <Popover.Positioner>
-          <Popover.Content width="220px" p="3" borderRadius="xl" shadow="lg">
-            <Popover.Body p="0" display="flex" flexDirection="column" gap="3">
-              <HexColorPicker color={hex} onChange={onChange} />
-              <InputGroup
-                startElement="#"
-                endElement={
-                  <Box
-                    width="4"
-                    height="4"
-                    borderRadius="sm"
-                    bg={HEX_RE.test("#" + draft) ? "#" + draft : hex}
-                    flexShrink={0}
-                    border="1px solid"
-                    borderColor="border"
-                  />
-                }
-              >
-                <Input
-                  ref={inputRef}
-                  size="xs"
-                  variant="subtle"
-                  fontFamily="mono"
-                  textTransform="uppercase"
-                  value={draft}
-                  onChange={(e) =>
-                    setDraft(
-                      e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 6),
-                    )
-                  }
-                  onCopy={(e) => {
-                    e.preventDefault();
-                    const sel = window.getSelection()?.toString() ?? draft;
-                    e.clipboardData.setData("text/plain", "#" + sel);
-                  }}
-                  onBlur={commit}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") commit();
-                  }}
-                />
-              </InputGroup>
-            </Popover.Body>
-          </Popover.Content>
-        </Popover.Positioner>
-      </Portal>
-    </Popover.Root>
+        </InputGroup>
+      </PopoverContent>
+    </Popover>
   );
 }
