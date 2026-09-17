@@ -14,8 +14,8 @@ import {
 } from "@chakra-ui/react";
 import { ImagePlus, Minus, Plus, Upload } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
-import { ColorAnchorPoint } from "@/components/ui/ColorAnchorPoint";
-import { Tooltip } from "@/components/ui/tooltip";
+import { ColorAnchorPoint } from "@/components/controls/ColorAnchorPoint";
+import { Tooltip } from "@/components/controls/tooltip";
 import {
   extractColorsFromImage,
   sampleColorAtPosition,

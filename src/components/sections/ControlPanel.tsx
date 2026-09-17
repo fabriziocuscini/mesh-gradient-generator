@@ -9,7 +9,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Download, Github, Shuffle } from "lucide-react";
-import { ActionIconButton } from "@/components/ui/ActionIconButton";
+import { ActionIconButton } from "@/components/controls/ActionIconButton";
 import { useGradientStore } from "@/store/gradientStore";
 import {
   GRADIENT_TYPES,
@@ -30,11 +30,11 @@ import {
 } from "@/lib/colors";
 import { livePositionsRef } from "@/lib/drift";
 import { exportImage } from "@/lib/export";
-import { GradientSelect } from "@/components/ui/GradientSelect";
-import { LabeledSlider } from "@/components/ui/LabeledSlider";
-import { DimensionInput } from "@/components/ui/DimensionInput";
-import { ColorModeButton } from "@/components/ui/color-mode";
-import { Tooltip } from "@/components/ui/tooltip";
+import { GradientSelect } from "@/components/controls/GradientSelect";
+import { LabeledSlider } from "@/components/controls/LabeledSlider";
+import { DimensionInput } from "@/components/controls/DimensionInput";
+import { ColorModeButton } from "@/components/controls/color-mode";
+import { Tooltip } from "@/components/controls/tooltip";
 import { ColorList } from "./ColorList";
 
 export function ControlPanel() {

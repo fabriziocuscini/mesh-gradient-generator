@@ -14,10 +14,10 @@ import {
   packPositionsForShader,
   hexToNormalizedRgb,
 } from "@/lib/colors";
-import { ColorAnchorPoint } from "@/components/ui/ColorAnchorPoint";
+import { ColorAnchorPoint } from "@/components/controls/ColorAnchorPoint";
 import { anchorInset } from "@/lib/anchorPosition";
 import { applyDrift, driftOffset, livePositionsRef } from "@/lib/drift";
-import { AudioWaveOverlay } from "@/components/ui/AudioWaveOverlay";
+import { AudioWaveOverlay } from "@/components/controls/AudioWaveOverlay";
 import type { RenderParams } from "@/lib/webgl";
 
 /**
