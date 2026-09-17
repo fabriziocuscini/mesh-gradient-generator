@@ -8,7 +8,7 @@ import { useGradientStore } from "@/store/gradientStore";
 import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/controls/ColorPicker";
 import { ActionIconButton } from "@/components/controls/ActionIconButton";
-import { Tooltip } from "@/components/controls/tooltip";
+import { Tooltip } from "@/components/controls/Tooltip";
 import { ImageColorPicker } from "@/components/sections/ImageColorPicker";
 import { randomHexColor } from "@/lib/colors";
 import { useClapDetector, isWebAudioSupported } from "@/hooks/useClapDetector";
@@ -156,11 +156,10 @@ export function ColorList() {
             label={isPlaying ? "Pause animation" : "Animate anchor points"}
             shortcut="P"
             onClick={togglePlayback}
-            variant={isPlaying ? "solid" : "ghost"}
-            colorPalette={isPlaying ? "blue" : undefined}
+            variant={isPlaying ? "primary" : "ghost"}
           />
           {isWebAudioSupported && (
-            <Tooltip content={clapTooltip} openDelay={400} closeDelay={0}>
+            <Tooltip content={clapTooltip}>
               <motion.div
                 animate={clapFlash ? { scale: [1, 1.35, 1] } : {}}
                 transition={{ duration: 0.3 }}

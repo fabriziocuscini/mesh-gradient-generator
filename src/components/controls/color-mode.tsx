@@ -4,7 +4,7 @@ import { ThemeProvider, useTheme } from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
 import * as React from "react";
 import { Moon, Sun } from "lucide-react";
-import { Tooltip } from "./tooltip";
+import { Tooltip } from "./Tooltip";
 
 export type ColorModeProviderProps = ThemeProviderProps;
 
@@ -82,7 +82,7 @@ export const ColorModeButton = React.forwardRef<
   useColorModeShortcut();
   return (
     <ClientOnly fallback={<Skeleton boxSize="9" />}>
-      <Tooltip content="Toggle color mode (D)" openDelay={400} closeDelay={0}>
+      <Tooltip content="Toggle color mode (D)">
         <IconButton
           onClick={toggleColorMode}
           variant="ghost"

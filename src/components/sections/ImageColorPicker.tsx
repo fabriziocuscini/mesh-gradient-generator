@@ -15,7 +15,7 @@ import {
 import { ImagePlus, Minus, Plus, Upload } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import { ColorAnchorPoint } from "@/components/controls/ColorAnchorPoint";
-import { Tooltip } from "@/components/controls/tooltip";
+import { Tooltip } from "@/components/controls/Tooltip";
 import {
   extractColorsFromImage,
   sampleColorAtPosition,
@@ -123,7 +123,7 @@ export function ImageColorPicker() {
       size="lg"
       placement="center"
     >
-      <Tooltip content="Upload image" openDelay={400} closeDelay={0}>
+      <Tooltip content="Upload image">
         <Dialog.Trigger asChild>
           <IconButton aria-label="Upload image" variant="ghost" size="2xs">
             <ImagePlus size={14} />

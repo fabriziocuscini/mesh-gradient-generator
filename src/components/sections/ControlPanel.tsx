@@ -34,7 +34,7 @@ import { GradientSelect } from "@/components/controls/GradientSelect";
 import { LabeledSlider } from "@/components/controls/LabeledSlider";
 import { DimensionInput } from "@/components/controls/DimensionInput";
 import { ColorModeButton } from "@/components/controls/color-mode";
-import { Tooltip } from "@/components/controls/tooltip";
+import { Tooltip } from "@/components/controls/Tooltip";
 import { ColorList } from "./ColorList";
 
 export function ControlPanel() {
@@ -138,7 +138,7 @@ export function ControlPanel() {
           Mesh Gradient
         </Text>
         <HStack gap="0">
-          <Tooltip content="GitHub repository" openDelay={400} closeDelay={0}>
+          <Tooltip content="GitHub repository">
             <IconButton
               asChild
               variant="ghost"
