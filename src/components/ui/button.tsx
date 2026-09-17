@@ -1,5 +1,11 @@
 /* FIGUI PATCH - dropped a dead `import * as React`; this repo builds with
    noUnusedLocals. Re-apply on upgrade. */
+/* FIGUI PATCH - dropped a redundant `[&_svg]:size-4` from the base class. It
+   sat beside `[&_svg:not([class*='size-'])]:size-4`, whose whole purpose is to
+   let a caller size an icon by putting a size class on it — and defeated it,
+   since `.btn svg` (0,1,1) outranks the icon's own `.size-3` (0,1,0). The
+   `:not()` rule alone gives the same 16px default and works as designed.
+   Re-apply on upgrade. */
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { useRender, mergeProps } from "@base-ui/react";
@@ -8,7 +14,7 @@ const solidFocusRing =
   "focus-visible:inset-ring-2 focus-visible:inset-ring-white-1000 focus-visible:border-blue-500";
 
 const buttonVariants = cva(
-  "typography-body-medium inline-flex shrink-0 items-center justify-center gap-1 rounded-md whitespace-nowrap outline-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "typography-body-medium inline-flex shrink-0 items-center justify-center gap-1 rounded-md whitespace-nowrap outline-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {

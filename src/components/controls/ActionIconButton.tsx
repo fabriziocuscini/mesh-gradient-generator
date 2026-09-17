@@ -61,7 +61,7 @@ export function ActionIconButton({
         onClick={onClick}
         {...rest}
       >
-        <Icon />
+        <Icon className="size-3" />
       </Button>
     </Tooltip>
   );

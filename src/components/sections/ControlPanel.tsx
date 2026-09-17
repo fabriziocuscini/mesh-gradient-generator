@@ -150,7 +150,7 @@ export function ControlPanel() {
                 />
               }
             >
-              <Github />
+              <Github className="size-3" />
             </Button>
           </Tooltip>
           <ThemeToggleButton />

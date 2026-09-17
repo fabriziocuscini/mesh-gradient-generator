@@ -40,7 +40,7 @@ function DialogClose({ className, ...props }: BaseDialog.Close.Props) {
     <BaseDialog.Close
       render={
         <Button variant="ghost" size="icon" aria-label="Close">
-          <X />
+          <X className="size-3" />
         </Button>
       }
       className={cn("absolute top-2 right-2", className)}

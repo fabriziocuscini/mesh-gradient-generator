@@ -48,12 +48,11 @@ export function ColorRow({
           buttonVariants({ variant: "ghost", size: "icon" }),
           "absolute -left-5 size-4 cursor-grab text-black-400 opacity-0 transition-opacity",
           "group-hover:opacity-100 active:cursor-grabbing dark:text-white-400",
-          "[&_svg]:size-3",
         )}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
-        <GripVertical />
+        <GripVertical className="size-3" />
       </button>
 
       <InputGroup className="min-w-0 flex-1">
@@ -95,7 +94,7 @@ export function ColorRow({
           )}
           onClick={onRemove}
         >
-          <Minus />
+          <Minus className="size-3" />
         </Button>
       )}
     </div>

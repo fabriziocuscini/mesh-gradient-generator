@@ -154,7 +154,7 @@ export function ColorListActions() {
               onClick={handleClapToggle}
               disabled={hasPermission === false}
             >
-              <MicIcon />
+              <MicIcon className="size-3" />
             </Button>
           </Tooltip>
         </motion.div>

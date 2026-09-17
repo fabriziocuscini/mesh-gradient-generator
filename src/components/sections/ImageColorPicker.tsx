@@ -135,7 +135,7 @@ export function ImageColorPicker() {
         <DialogTrigger
           render={
             <Button variant="ghost" size="icon" aria-label="Upload image">
-              <ImagePlus />
+              <ImagePlus className="size-3" />
             </Button>
           }
         />
