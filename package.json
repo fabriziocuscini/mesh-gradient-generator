@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
+    "test:e2e": "playwright test",
     "prepare": "husky"
   },
   "dependencies": {
