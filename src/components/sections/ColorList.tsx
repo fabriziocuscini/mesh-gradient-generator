@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Box, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
@@ -9,9 +8,13 @@ import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/controls/ColorPicker";
 import { ActionIconButton } from "@/components/controls/ActionIconButton";
 import { Tooltip } from "@/components/controls/Tooltip";
+import { Button } from "@/components/ui/button";
 import { ImageColorPicker } from "@/components/sections/ImageColorPicker";
 import { randomHexColor } from "@/lib/colors";
 import { useClapDetector, isWebAudioSupported } from "@/hooks/useClapDetector";
+
+const MAX_COLORS = 10;
+const MIN_COLORS = 2;
 
 interface SortableColorItemProps {
   color: ColorPoint;
@@ -65,20 +68,15 @@ function SortableColorItem({
   );
 }
 
-export function ColorList() {
+/**
+ * The Colors section's header actions. Separate from the list so they can sit
+ * in the collapsible header beside the title, the way Figma's panels do.
+ */
+export function ColorListActions() {
   const colors = useGradientStore((s) => s.colors);
-  const setColorHex = useGradientStore((s) => s.setColorHex);
-  const removeColor = useGradientStore((s) => s.removeColor);
   const addColor = useGradientStore((s) => s.addColor);
-  const reorderColors = useGradientStore((s) => s.reorderColors);
   const randomizePositions = useGradientStore((s) => s.randomizePositions);
   const randomizePalette = useGradientStore((s) => s.randomizePalette);
-  const setHighlightedColorId = useGradientStore(
-    (s) => s.setHighlightedColorId,
-  );
-  const selectedColorId = useGradientStore((s) => s.selectedColorId);
-  const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
-  const pushHistory = useGradientStore((s) => s.pushHistory);
   const setClapDetectionActive = useGradientStore(
     (s) => s.setClapDetectionActive,
   );
@@ -122,8 +120,82 @@ export function ColorList() {
     }
   }, [isListening, hasPermission, requestPermission]);
 
-  const canAdd = colors.length < 10;
-  const canRemove = colors.length > 2;
+  const clapTooltip =
+    hasPermission === false
+      ? "Microphone access denied"
+      : isListening
+        ? "Listening for claps"
+        : "Clap to randomize";
+
+  const MicIcon = isListening ? Mic : MicOff;
+
+  return (
+    <>
+      <ActionIconButton
+        icon={isPlaying ? Pause : Play}
+        label={isPlaying ? "Pause animation" : "Animate anchor points"}
+        shortcut="P"
+        onClick={togglePlayback}
+        variant={isPlaying ? "primary" : "ghost"}
+      />
+      {isWebAudioSupported && (
+        // The flash wrapper is outside the tooltip now: Base UI's trigger
+        // renders the button itself, so a motion.div in between would have
+        // become the trigger.
+        <motion.div
+          animate={clapFlash ? { scale: [1, 1.35, 1] } : {}}
+          transition={{ duration: 0.3 }}
+        >
+          <Tooltip content={clapTooltip}>
+            <Button
+              aria-label={clapTooltip}
+              variant={isListening ? "primary" : "ghost"}
+              size="icon"
+              onClick={handleClapToggle}
+              disabled={hasPermission === false}
+            >
+              <MicIcon />
+            </Button>
+          </Tooltip>
+        </motion.div>
+      )}
+      <ActionIconButton
+        icon={Shuffle}
+        label="Randomize positions"
+        shortcut="Space"
+        onClick={randomizePositions}
+      />
+      <ActionIconButton
+        icon={Palette}
+        label="Randomize palette"
+        shortcut="R"
+        onClick={randomizePalette}
+      />
+      <ImageColorPicker />
+      {colors.length < MAX_COLORS && (
+        <ActionIconButton
+          icon={Plus}
+          label="Add color"
+          onClick={() => addColor(randomHexColor())}
+        />
+      )}
+    </>
+  );
+}
+
+export function ColorList() {
+  const colors = useGradientStore((s) => s.colors);
+  const setColorHex = useGradientStore((s) => s.setColorHex);
+  const removeColor = useGradientStore((s) => s.removeColor);
+  const reorderColors = useGradientStore((s) => s.reorderColors);
+  const setHighlightedColorId = useGradientStore(
+    (s) => s.setHighlightedColorId,
+  );
+  const selectedColorId = useGradientStore((s) => s.selectedColorId);
+  const setSelectedColorId = useGradientStore((s) => s.setSelectedColorId);
+  const pushHistory = useGradientStore((s) => s.pushHistory);
+
+  const canRemove = colors.length > MIN_COLORS;
 
   const handlePickerOpenChange = (colorId: string, isOpen: boolean) => {
     if (isOpen) {
@@ -135,106 +207,41 @@ export function ColorList() {
     }
   };
 
-  const clapTooltip =
-    hasPermission === false
-      ? "Microphone access denied"
-      : isListening
-        ? "Listening for claps"
-        : "Clap to randomize";
-
-  const MicIcon = isListening ? Mic : MicOff;
-
   return (
-    <VStack align="stretch" gap="1">
-      <HStack justify="space-between">
-        <Text textStyle="xs" fontWeight="medium" color="fg">
-          Colors
-        </Text>
-        <HStack gap="1">
-          <ActionIconButton
-            icon={isPlaying ? Pause : Play}
-            label={isPlaying ? "Pause animation" : "Animate anchor points"}
-            shortcut="P"
-            onClick={togglePlayback}
-            variant={isPlaying ? "primary" : "ghost"}
-          />
-          {isWebAudioSupported && (
-            <Tooltip content={clapTooltip}>
-              <motion.div
-                animate={clapFlash ? { scale: [1, 1.35, 1] } : {}}
-                transition={{ duration: 0.3 }}
-              >
-                <IconButton
-                  aria-label={clapTooltip}
-                  variant={isListening ? "solid" : "ghost"}
-                  colorPalette={isListening ? "blue" : undefined}
-                  size="2xs"
-                  onClick={handleClapToggle}
-                  disabled={hasPermission === false}
-                >
-                  <MicIcon size={14} />
-                </IconButton>
-              </motion.div>
-            </Tooltip>
-          )}
-          <ActionIconButton
-            icon={Shuffle}
-            label="Randomize positions"
-            shortcut="Space"
-            onClick={randomizePositions}
-          />
-          <ActionIconButton
-            icon={Palette}
-            label="Randomize palette"
-            shortcut="R"
-            onClick={randomizePalette}
-          />
-          <ImageColorPicker />
-          {canAdd && (
-            <ActionIconButton
-              icon={Plus}
-              label="Add color"
-              onClick={() => addColor(randomHexColor())}
-            />
-          )}
-        </HStack>
-      </HStack>
-
-      <Box>
-        <DragDropProvider
-          onDragEnd={(event) => {
-            if (event.canceled) return;
-            const { source } = event.operation;
-            if (isSortable(source)) {
-              const { initialIndex, index } = source;
-              if (initialIndex !== index) {
-                reorderColors(initialIndex, index);
-              }
+    <div className="flex flex-col gap-1">
+      <DragDropProvider
+        onDragEnd={(event) => {
+          if (event.canceled) return;
+          const { source } = event.operation;
+          if (isSortable(source)) {
+            const { initialIndex, index } = source;
+            if (initialIndex !== index) {
+              reorderColors(initialIndex, index);
             }
-          }}
-        >
-          <AnimatePresence initial={false}>
-            {colors.map((color, index) => (
-              <SortableColorItem
-                key={color.id}
-                color={color}
-                index={index}
-                canRemove={canRemove}
-                isPickerOpen={selectedColorId === color.id}
-                onPickerOpenChange={handlePickerOpenChange}
-                onColorChange={setColorHex}
-                onRemove={removeColor}
-                onHoverStart={(id) => {
-                  if (!selectedColorId) setHighlightedColorId(id);
-                }}
-                onHoverEnd={() => {
-                  if (!selectedColorId) setHighlightedColorId(null);
-                }}
-              />
-            ))}
-          </AnimatePresence>
-        </DragDropProvider>
-      </Box>
-    </VStack>
+          }
+        }}
+      >
+        <AnimatePresence initial={false}>
+          {colors.map((color, index) => (
+            <SortableColorItem
+              key={color.id}
+              color={color}
+              index={index}
+              canRemove={canRemove}
+              isPickerOpen={selectedColorId === color.id}
+              onPickerOpenChange={handlePickerOpenChange}
+              onColorChange={setColorHex}
+              onRemove={removeColor}
+              onHoverStart={(id) => {
+                if (!selectedColorId) setHighlightedColorId(id);
+              }}
+              onHoverEnd={() => {
+                if (!selectedColorId) setHighlightedColorId(null);
+              }}
+            />
+          ))}
+        </AnimatePresence>
+      </DragDropProvider>
+    </div>
   );
 }

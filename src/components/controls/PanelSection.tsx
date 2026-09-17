@@ -1,0 +1,42 @@
+import type { ReactNode } from "react";
+import { ChevronRight } from "lucide-react";
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+
+interface PanelSectionProps {
+  title: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** Rendered on the right of the header, outside the trigger so a click on
+   *  one of these does not also collapse the section. */
+  actions?: ReactNode;
+  children: ReactNode;
+}
+
+export function PanelSection({
+  title,
+  open,
+  onOpenChange,
+  actions,
+  children,
+}: PanelSectionProps) {
+  return (
+    <Collapsible open={open} onOpenChange={onOpenChange}>
+      <div className="flex h-8 items-center justify-between gap-1 px-4">
+        <CollapsibleTrigger className="group -ml-1 flex min-w-0 flex-1 items-center gap-0.5 pl-1 text-black-800 dark:text-white-1000">
+          <ChevronRight className="size-3 shrink-0 text-black-500 transition-transform duration-150 group-data-panel-open:rotate-90 dark:text-white-500" />
+          <span className="typography-body-medium-strong truncate">
+            {title}
+          </span>
+        </CollapsibleTrigger>
+        {actions && <div className="flex shrink-0 items-center">{actions}</div>}
+      </div>
+      <CollapsiblePanel>
+        <div className="flex flex-col gap-3 px-4 pt-0.5 pb-4">{children}</div>
+      </CollapsiblePanel>
+    </Collapsible>
+  );
+}
