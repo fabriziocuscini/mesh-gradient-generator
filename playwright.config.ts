@@ -8,7 +8,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: process.env.CI ? "github" : "list",
+  // In CI, annotate failures inline *and* write the HTML report, so the
+  // uploaded artifact has traces to open. The github reporter alone writes no
+  // files, which left the upload step warning and uploading nothing.
+  reporter: process.env.CI
+    ? [["github"], ["html", { open: "never" }]]
+    : [["list"]],
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
