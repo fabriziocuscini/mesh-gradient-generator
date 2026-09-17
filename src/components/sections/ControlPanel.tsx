@@ -24,7 +24,7 @@ import { SelectRow } from "@/components/controls/SelectRow";
 import { LabeledSlider } from "@/components/controls/LabeledSlider";
 import { DimensionInput } from "@/components/controls/DimensionInput";
 import { PanelSection } from "@/components/controls/PanelSection";
-import { ColorModeButton } from "@/components/controls/color-mode";
+import { ThemeToggleButton } from "@/components/controls/theme";
 import { Tooltip } from "@/components/controls/Tooltip";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -153,7 +153,7 @@ export function ControlPanel() {
               <Github />
             </Button>
           </Tooltip>
-          <ColorModeButton />
+          <ThemeToggleButton />
         </div>
       </div>
 

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Box } from "@chakra-ui/react";
 import { Analytics } from "@vercel/analytics/react";
 import { GradientCanvas } from "@/components/sections/GradientCanvas";
 import { ControlPanel } from "@/components/sections/ControlPanel";
 import { useGradientStore } from "@/store/gradientStore";
+import { useThemeToggle } from "@/components/controls/theme";
 
 const DEFAULT_SIDEBAR_WIDTH = 300;
 const MIN_SIDEBAR_WIDTH = 240;
@@ -12,6 +12,10 @@ const MAX_SIDEBAR_WIDTH = 480;
 function App() {
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const dragging = useRef(false);
+  // Lives here with the other shortcuts. It used to be a private hook inside
+  // the colour-mode button, so the binding only existed while that button was
+  // mounted — easy to lose to a refactor with no compile error to show for it.
+  const { toggle: toggleColorMode } = useThemeToggle();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -57,11 +61,15 @@ function App() {
       if (e.code === "KeyP") {
         useGradientStore.getState().togglePlayback();
       }
+
+      if (e.code === "KeyD") {
+        toggleColorMode();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [toggleColorMode]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
@@ -87,28 +95,25 @@ function App() {
 
   return (
     <>
-      <Box height="100vh" overflow="hidden" display="flex">
-        <Box flex="1" minWidth="0" height="100%">
+      <div className="flex h-screen overflow-hidden">
+        <div className="h-full min-w-0 flex-1">
           <GradientCanvas />
-        </Box>
+        </div>
 
-        <Box
-          width="3px"
-          flexShrink={0}
-          cursor="col-resize"
-          bg={{ base: "gray.200", _dark: "whiteAlpha.100" }}
-          _hover={{ bg: { base: "gray.300", _dark: "whiteAlpha.200" } }}
-          transition="background 0.15s"
+        <div
+          className="w-[3px] shrink-0 cursor-col-resize bg-grey-200 transition-colors duration-150 hover:bg-grey-300 dark:bg-grey-600 dark:hover:bg-grey-500"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onDoubleClick={() => setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)}
         />
 
-        <Box width={`${sidebarWidth}px`} flexShrink={0} height="100%">
+        {/* Width stays data rather than a class: a Figma plugin build pins one
+            value and calls figma.ui.resize without touching a component. */}
+        <div className="h-full shrink-0" style={{ width: `${sidebarWidth}px` }}>
           <ControlPanel />
-        </Box>
-      </Box>
+        </div>
+      </div>
       <Analytics />
     </>
   );
