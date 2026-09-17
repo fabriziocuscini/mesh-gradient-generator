@@ -1,158 +1,81 @@
-import { useState, useMemo } from "react";
+import type { KeyboardEvent } from "react";
 import {
-  Stack,
-  Input,
   InputGroup,
-  Portal,
-  createListCollection,
-} from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
+  InputGroupAddon,
+  InputGroupDivider,
+  NumericInput,
+  NumericInputRoot,
+  NumericScrubArea,
+} from "@/components/ui/input";
 
-interface FormatOption {
-  label: string;
-  value: string;
-}
+const MIN_DIMENSION = 100;
+const MAX_DIMENSION = 7680;
 
 interface DimensionInputProps {
   widthValue: number;
   heightValue: number;
   onWidthChange: (value: number) => void;
   onHeightChange: (value: number) => void;
-  formatValue?: string;
-  formatOptions?: FormatOption[];
-  onFormatChange?: (value: string) => void;
 }
 
-function parseDimension(raw: string): number | null {
-  const n = parseInt(raw, 10);
-  if (isNaN(n) || raw.trim() === "") return null;
-  return Math.max(100, Math.min(n, 7680));
-}
+const SCRUB_CLASS =
+  "typography-body-medium flex size-6 items-center justify-center text-black-500 dark:text-white-500";
 
-function digitsOnly(e: React.KeyboardEvent) {
-  if (e.key.length === 1 && !/\d/.test(e.key)) {
-    e.preventDefault();
-  }
-}
-
-function useDimensionField(value: number, onChange: (v: number) => void) {
-  const [draft, setDraft] = useState(String(value));
-  const [focused, setFocused] = useState(false);
-
-  const displayed = focused ? draft : String(value);
-
-  const handleFocus = () => {
-    setDraft(String(value));
-    setFocused(true);
-  };
-
-  const commit = () => {
-    const parsed = parseDimension(draft);
-    if (parsed !== null) onChange(parsed);
-    setDraft(String(parsed ?? value));
-    setFocused(false);
-  };
-
-  return { displayed, setDraft, handleFocus, commit };
-}
-
+/**
+ * Replaces the hand-rolled draft/commit/clamp field the Chakra version needed:
+ * NumericInputRoot clamps to min/max through Base UI's NumberField, and drag
+ * the W or H label to scrub the value the way Figma does.
+ *
+ * FigUI's NumericInput also ships an expression evaluator (type `1920/2`, get
+ * 960), but it cannot fire under Base UI 1.8: the input hard-filters keystrokes
+ * against the locale's number format, so `/` and `*` never reach the field. No
+ * loss against the Chakra version, whose own handler was digits-only.
+ */
 export function DimensionInput({
   widthValue,
   heightValue,
   onWidthChange,
   onHeightChange,
-  formatValue,
-  formatOptions,
-  onFormatChange,
 }: DimensionInputProps) {
-  const w = useDimensionField(widthValue, onWidthChange);
-  const h = useDimensionField(heightValue, onHeightChange);
+  const commit = (onChange: (value: number) => void) => (next: string) => {
+    const parsed = Number(next);
+    if (next !== "" && Number.isFinite(parsed)) onChange(parsed);
+  };
 
-  const collection = useMemo(
-    () =>
-      formatOptions
-        ? createListCollection({ items: formatOptions })
-        : undefined,
-    [formatOptions],
-  );
+  // Base UI commits and clamps on blur, not on Enter, so Enter would otherwise
+  // leave an out-of-range value sitting in the field. The Chakra version
+  // committed on Enter and people expect that of a numeric field.
+  const commitOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") e.currentTarget.blur();
+  };
 
   return (
-    <Stack direction={{ base: "column", lg: "row" }} gap="3" width="full">
-      <InputGroup flex="1" startElement="W">
-        <Input
-          size="xs"
-          variant="subtle"
-          inputMode="numeric"
-          value={w.displayed}
-          onChange={(e) => w.setDraft(e.target.value)}
-          onFocus={w.handleFocus}
-          onBlur={w.commit}
-          onKeyDown={(e) => {
-            digitsOnly(e);
-            if (e.key === "Enter") w.commit();
-          }}
-        />
-      </InputGroup>
+    <InputGroup className="w-full">
+      <NumericInputRoot
+        value={widthValue}
+        min={MIN_DIMENSION}
+        max={MAX_DIMENSION}
+        onValueChange={commit(onWidthChange)}
+      >
+        <InputGroupAddon>
+          <NumericScrubArea className={SCRUB_CLASS}>W</NumericScrubArea>
+        </InputGroupAddon>
+        <NumericInput aria-label="Export width" onKeyDown={commitOnEnter} />
+      </NumericInputRoot>
 
-      <InputGroup flex="1" startElement="H">
-        <Input
-          size="xs"
-          variant="subtle"
-          inputMode="numeric"
-          value={h.displayed}
-          onChange={(e) => h.setDraft(e.target.value)}
-          onFocus={h.handleFocus}
-          onBlur={h.commit}
-          onKeyDown={(e) => {
-            digitsOnly(e);
-            if (e.key === "Enter") h.commit();
-          }}
-        />
-      </InputGroup>
+      <InputGroupDivider />
 
-      {collection && formatValue && onFormatChange && (
-        <Select.Root
-          collection={collection}
-          size="xs"
-          width="auto"
-          variant="subtle"
-          value={[formatValue]}
-          onValueChange={(details) => {
-            const next = details.value[0];
-            if (next != null) onFormatChange(next);
-          }}
-          positioning={{ sameWidth: false, placement: "bottom-end" }}
-        >
-          <Select.HiddenSelect />
-          <Select.Control>
-            <Select.Trigger
-              fontWeight="medium"
-              textStyle="xs"
-              cursor="pointer"
-              px="2"
-            >
-              <Select.ValueText
-                whiteSpace="nowrap"
-                overflow="visible"
-                textOverflow="clip"
-              />
-              <Select.Indicator />
-            </Select.Trigger>
-          </Select.Control>
-          <Portal>
-            <Select.Positioner>
-              <Select.Content minW="6rem" whiteSpace="nowrap">
-                {collection.items.map((item) => (
-                  <Select.Item key={item.value} item={item}>
-                    <Select.ItemText>{item.label}</Select.ItemText>
-                    <Select.ItemIndicator />
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Portal>
-        </Select.Root>
-      )}
-    </Stack>
+      <NumericInputRoot
+        value={heightValue}
+        min={MIN_DIMENSION}
+        max={MAX_DIMENSION}
+        onValueChange={commit(onHeightChange)}
+      >
+        <InputGroupAddon>
+          <NumericScrubArea className={SCRUB_CLASS}>H</NumericScrubArea>
+        </InputGroupAddon>
+        <NumericInput aria-label="Export height" onKeyDown={commitOnEnter} />
+      </NumericInputRoot>
+    </InputGroup>
   );
 }

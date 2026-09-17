@@ -21,7 +21,6 @@ import {
   DEFAULT_EXPORT_QUALITY,
   MIN_EXPORT_QUALITY,
   MAX_EXPORT_QUALITY,
-  type ExportFormat,
 } from "@/types";
 import {
   hexToNormalizedRgb,
@@ -30,7 +29,7 @@ import {
 } from "@/lib/colors";
 import { livePositionsRef } from "@/lib/drift";
 import { exportImage } from "@/lib/export";
-import { GradientSelect } from "@/components/controls/GradientSelect";
+import { SelectRow } from "@/components/controls/SelectRow";
 import { LabeledSlider } from "@/components/controls/LabeledSlider";
 import { DimensionInput } from "@/components/controls/DimensionInput";
 import { ColorModeButton } from "@/components/controls/color-mode";
@@ -68,7 +67,7 @@ export function ControlPanel() {
     [exportFormat],
   );
 
-  const formatSelectOptions = useMemo(
+  const formatOptions = useMemo(
     () => EXPORT_FORMATS.map((f) => ({ label: f.label, value: f.value })),
     [],
   );
@@ -114,14 +113,15 @@ export function ControlPanel() {
     }
   }, []);
 
+  // t.id is a shader id, not an array index — pass it through untouched.
   const gradientOptions = GRADIENT_TYPES.map((t) => ({
     label: t.name,
-    value: String(t.id),
+    value: t.id,
   }));
 
   const warpOptions = WARP_SHAPES.map((s) => ({
     label: s.name,
-    value: String(s.id),
+    value: s.id,
   }));
 
   return (
@@ -165,17 +165,17 @@ export function ControlPanel() {
         <VStack align="stretch" gap="5">
           {/* Gradient & Warp type */}
           <VStack align="stretch" gap="3" px="4">
-            <GradientSelect
+            <SelectRow
               label="Gradient"
-              value={String(gradientTypeIndex)}
+              value={gradientTypeIndex}
               options={gradientOptions}
-              onChange={(v) => setGradientTypeIndex(Number(v))}
+              onChange={setGradientTypeIndex}
             />
-            <GradientSelect
+            <SelectRow
               label="Warp Shape"
-              value={String(warpShapeIndex)}
+              value={warpShapeIndex}
               options={warpOptions}
-              onChange={(v) => setWarpShapeIndex(Number(v))}
+              onChange={setWarpShapeIndex}
             />
           </VStack>
 
@@ -247,9 +247,12 @@ export function ControlPanel() {
             heightValue={height}
             onWidthChange={setWidth}
             onHeightChange={setHeight}
-            formatValue={exportFormat}
-            formatOptions={formatSelectOptions}
-            onFormatChange={(v) => setExportFormat(v as ExportFormat)}
+          />
+          <SelectRow
+            label="Format"
+            value={exportFormat}
+            options={formatOptions}
+            onChange={setExportFormat}
           />
           {currentFormat.lossy && (
             <LabeledSlider

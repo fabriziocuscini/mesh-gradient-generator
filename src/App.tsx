@@ -15,8 +15,15 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      // The guard is about text entry. Base UI's slider parks focus on a
+      // hidden range input, which holds no text and must not swallow undo or
+      // the bare-key shortcuts — Chakra's thumb was a div, so it never did.
+      const isRange =
+        tag === "INPUT" && (target as HTMLInputElement).type === "range";
+      const isInput =
+        !isRange && (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT");
 
       if ((e.metaKey || e.ctrlKey) && e.code === "KeyZ" && !isInput) {
         e.preventDefault();
