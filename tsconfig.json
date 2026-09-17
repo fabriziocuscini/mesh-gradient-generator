@@ -3,5 +3,14 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  // Inert for `tsc -b` (files is empty) but this is the tsconfig the shadcn CLI
+  // reads to resolve the `@/` alias in components.json. Without it, `shadcn add`
+  // writes a literal `@/` directory at the repo root.
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
 }

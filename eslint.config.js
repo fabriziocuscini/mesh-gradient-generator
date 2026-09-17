@@ -21,5 +21,15 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Vendored from FigUI. Two of its files trip rules that are correct for our
+    // own code: button.tsx exports `buttonVariants` (a cva() call, which
+    // allowConstantExport does not cover) and color-chit.tsx has an empty catch.
+    files: ["src/components/ui/**"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+      "no-empty": "off",
+    },
+  },
   prettier,
 ]);
