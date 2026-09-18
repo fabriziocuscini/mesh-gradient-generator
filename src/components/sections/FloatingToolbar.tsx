@@ -231,6 +231,9 @@ export function FloatingToolbar() {
       <motion.div
         className="absolute inset-x-0 -bottom-6 flex justify-center"
         inert={!collapsed}
+        // Without initial={false} the first paint puts the tab at y 0, so the
+        // page loads with the tab on screen and then slides it away.
+        initial={false}
         animate={{ y: collapsed ? 0 : 20 }}
         transition={slide}
       >
