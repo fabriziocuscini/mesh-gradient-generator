@@ -44,7 +44,7 @@ export function SelectRow<T extends string | number>({
           if (next != null) onChange(next);
         }}
       >
-        <SelectTrigger inline aria-label={label}>
+        <SelectTrigger aria-label={label}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent align="end">

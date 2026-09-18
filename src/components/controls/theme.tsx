@@ -53,9 +53,9 @@ export function ThemeToggleButton() {
         {colorMode === undefined ? (
           <span className="size-4" />
         ) : colorMode === "dark" ? (
-          <Moon className="size-3" />
+          <Moon className="size-4" strokeWidth={1.5} />
         ) : (
-          <Sun className="size-3" />
+          <Sun className="size-4" strokeWidth={1.5} />
         )}
       </Button>
     </Tooltip>

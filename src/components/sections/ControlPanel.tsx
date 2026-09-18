@@ -136,7 +136,7 @@ export function ControlPanel() {
         <span className="typography-body-large-strong text-black-800 dark:text-white-1000">
           Mesh Gradient
         </span>
-        <div className="flex shrink-0 items-center">
+        <div className="flex shrink-0 items-center gap-0.5">
           <Tooltip content="GitHub repository">
             <Button
               variant="ghost"
@@ -150,7 +150,7 @@ export function ControlPanel() {
                 />
               }
             >
-              <Github className="size-3" />
+              <Github className="size-4" strokeWidth={1.5} />
             </Button>
           </Tooltip>
           <ThemeToggleButton />
@@ -280,9 +280,9 @@ export function ControlPanel() {
             aria-busy={exporting}
           >
             {exporting ? (
-              <Loader2 className="motion-safe:animate-spin" />
+              <Loader2 className="motion-safe:animate-spin" strokeWidth={1.5} />
             ) : (
-              <Download />
+              <Download strokeWidth={1.5} />
             )}
             {exporting ? "Exporting…" : `Download ${currentFormat.label}`}
           </Button>

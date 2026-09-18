@@ -94,7 +94,7 @@ export function ColorRow({
           )}
           onClick={onRemove}
         >
-          <Minus className="size-3" />
+          <Minus className="size-4" strokeWidth={1.5} />
         </Button>
       )}
     </div>

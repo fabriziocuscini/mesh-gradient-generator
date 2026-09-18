@@ -24,7 +24,7 @@ export function PanelSection({
   children,
 }: PanelSectionProps) {
   return (
-    <Collapsible open={open} onOpenChange={onOpenChange}>
+    <Collapsible open={open} onOpenChange={onOpenChange} className="pt-2">
       <div className="flex h-8 items-center justify-between gap-1 px-4">
         <CollapsibleTrigger className="group -ml-1 flex min-w-0 flex-1 items-center gap-0.5 pl-1 text-black-800 dark:text-white-1000">
           <ChevronRight className="size-3 shrink-0 text-black-500 transition-transform duration-150 group-data-panel-open:rotate-90 dark:text-white-500" />
@@ -32,7 +32,9 @@ export function PanelSection({
             {title}
           </span>
         </CollapsibleTrigger>
-        {actions && <div className="flex shrink-0 items-center">{actions}</div>}
+        {actions && (
+          <div className="flex shrink-0 items-center gap-0.5">{actions}</div>
+        )}
       </div>
       <CollapsiblePanel>
         <div className="flex flex-col gap-3 px-4 pt-0.5 pb-4">{children}</div>

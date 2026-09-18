@@ -61,7 +61,10 @@ export function ActionIconButton({
         onClick={onClick}
         {...rest}
       >
-        <Icon className="size-3" />
+        {/* Lucide draws on a 24px grid with a 2px stroke. At 16px a stroke
+            of 1.5 renders as exactly 1px, which is the weight Figma's own
+            panel icons have. At the old 12px the artwork lost its detail. */}
+        <Icon className="size-4" strokeWidth={1.5} />
       </Button>
     </Tooltip>
   );
