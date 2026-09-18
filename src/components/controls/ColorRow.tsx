@@ -17,7 +17,6 @@ interface ColorRowProps {
   onChange: (hex: string) => void;
   onRemove?: () => void;
   removable?: boolean;
-  active?: boolean;
   handleRef?: Ref<HTMLButtonElement>;
 }
 
@@ -30,7 +29,6 @@ export function ColorRow({
   onChange,
   onRemove,
   removable = true,
-  active = false,
   handleRef,
 }: ColorRowProps) {
   const hex = HEX_RE.test(rawHex) ? rawHex : "#000000";
@@ -87,11 +85,7 @@ export function ColorRow({
           variant="ghost"
           size="icon"
           aria-label="Remove color"
-          className={cn(
-            "size-6 shrink-0 text-black-500 opacity-0 transition-opacity dark:text-white-500",
-            "group-hover:opacity-100",
-            active && "opacity-100",
-          )}
+          className="size-6 shrink-0 text-black-500 dark:text-white-500"
           onClick={onRemove}
         >
           <Minus className="size-4" strokeWidth={1.5} />

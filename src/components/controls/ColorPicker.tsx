@@ -55,7 +55,6 @@ export function ColorPicker({
         onChange={onChange}
         onRemove={onRemove}
         removable={removable}
-        active={open}
         handleRef={dragHandleRef}
       />
       <PopoverContent
