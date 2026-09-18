@@ -133,7 +133,7 @@ export function ControlPanel() {
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white-1000 dark:bg-grey-800">
       <div className="flex h-11 shrink-0 items-center justify-between gap-1 px-4">
-        <span className="typography-body-large-strong text-black-800 dark:text-white-1000">
+        <span className="typography-body-large-strong text-ink">
           Mesh Gradient
         </span>
         <div className="flex shrink-0 items-center gap-0.5">

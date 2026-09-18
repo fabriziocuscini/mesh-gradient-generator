@@ -35,7 +35,7 @@ export function SelectRow<T extends string | number>({
 
   return (
     <div className="flex h-6 items-center justify-between gap-2">
-      <span className="typography-body-medium shrink-0 text-black-500 dark:text-white-500">
+      <span className="typography-body-medium shrink-0 text-ink-secondary">
         {label}
       </span>
       <Select

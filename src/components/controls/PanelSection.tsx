@@ -36,12 +36,10 @@ export function PanelSection({
         <CollapsibleTrigger
           className={cn(
             "group -ml-1 flex min-w-0 flex-1 items-center gap-0.5 pl-1 transition-colors duration-150",
-            open
-              ? "text-black-800 dark:text-white-1000"
-              : "text-black-500 hover:text-black-800 dark:text-white-500 dark:hover:text-white-1000",
+            open ? "text-ink" : "text-ink-secondary hover:text-ink",
           )}
         >
-          <ChevronRight className="size-3 shrink-0 text-black-500 transition-transform duration-150 group-data-panel-open:rotate-90 dark:text-white-500" />
+          <ChevronRight className="size-3 shrink-0 text-ink-secondary transition-transform duration-150 group-data-panel-open:rotate-90" />
           <span className="typography-body-medium-strong truncate">
             {title}
           </span>

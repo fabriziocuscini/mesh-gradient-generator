@@ -23,6 +23,38 @@
   --font-mono: var(--font-family-mono);
 }
 
+/* Semantic text colours. figui.css ships the raw Figma scales only, so a
+   component had to spell out its own light and dark pair for every label.
+   These four names cover the roles the app actually uses. They live here and
+   not in figui.css, which is vendored and gets overwritten on a refresh.
+
+   The selectors below match the dark variant figui.css declares. next-themes
+   puts the class on <html>, so everything inherits the right values. */
+:root {
+  --ink: var(--color-black-800);
+  --ink-secondary: var(--color-black-500);
+  --ink-muted: var(--color-black-400);
+  --ink-strong: var(--color-black-1000);
+}
+
+.dark,
+[data-theme="dark"],
+.figma-dark {
+  --ink: var(--color-white-1000);
+  --ink-secondary: var(--color-white-500);
+  --ink-muted: var(--color-white-400);
+  --ink-strong: var(--color-white-1000);
+}
+
+/* `inline` keeps the var reference in the utility, so text-ink-secondary
+   follows the theme on its own and needs no dark: variant beside it. */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-strong: var(--ink-strong);
+}
+
 html,
 body {
   min-height: 100vh;
@@ -33,12 +65,11 @@ body {
   position: relative;
   font-family: var(--font-family-default);
   background: var(--color-white-1000);
-  color: var(--color-black-800);
+  color: var(--ink);
 }
 
 .dark body {
   background: var(--color-grey-800);
-  color: var(--color-white-1000);
 }
 
 /* Keeps the app's z-index out of the way of Base UI's portalled popups. */

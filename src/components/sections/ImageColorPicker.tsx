@@ -183,8 +183,8 @@ export function ImageColorPicker({ triggerClassName }: ImageColorPickerProps) {
               className="sr-only"
               onChange={(e) => acceptFile(e.target.files?.[0])}
             />
-            <Upload className="size-6 text-black-500 dark:text-white-500" />
-            <div className="typography-body-large text-center text-black-800 dark:text-white-1000">
+            <Upload className="size-6 text-ink-secondary" />
+            <div className="typography-body-large text-center text-ink">
               <p>
                 Paste or{" "}
                 <span className="text-blue-600 dark:text-blue-400">

@@ -19,7 +19,7 @@ interface DimensionInputProps {
 }
 
 const SCRUB_CLASS =
-  "typography-body-medium flex size-6 items-center justify-center text-black-500 dark:text-white-500";
+  "typography-body-medium flex size-6 items-center justify-center text-ink-secondary";
 
 /**
  * Replaces the hand-rolled draft/commit/clamp field the Chakra version needed:

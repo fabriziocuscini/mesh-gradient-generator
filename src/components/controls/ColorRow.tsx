@@ -44,8 +44,8 @@ export function ColorRow({
         aria-label="Drag to reorder"
         className={cn(
           buttonVariants({ variant: "ghost", size: "icon" }),
-          "absolute -left-5 size-4 cursor-grab text-black-400 opacity-0 transition-opacity",
-          "group-hover:opacity-100 active:cursor-grabbing dark:text-white-400",
+          "absolute -left-5 size-4 cursor-grab text-ink-muted opacity-0 transition-opacity",
+          "group-hover:opacity-100 active:cursor-grabbing",
         )}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
@@ -85,7 +85,7 @@ export function ColorRow({
           variant="ghost"
           size="icon"
           aria-label="Remove color"
-          className="size-6 shrink-0 text-black-500 dark:text-white-500"
+          className="size-6 shrink-0 text-ink-secondary"
           onClick={onRemove}
         >
           <Minus className="size-4" strokeWidth={1.5} />

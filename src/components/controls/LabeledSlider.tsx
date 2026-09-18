@@ -59,10 +59,10 @@ export function LabeledSlider({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between gap-2">
-        <span className="typography-body-medium text-black-500 dark:text-white-500">
+        <span className="typography-body-medium text-ink-secondary">
           {label}
         </span>
-        <span className="typography-body-medium text-black-400 tabular-nums dark:text-white-400">
+        <span className="typography-body-medium text-ink-muted tabular-nums">
           {format(value)}
         </span>
       </div>
