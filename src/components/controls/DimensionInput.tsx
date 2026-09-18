@@ -55,6 +55,8 @@ export function DimensionInput({
         value={widthValue}
         min={MIN_DIMENSION}
         max={MAX_DIMENSION}
+        // A pixel count is not money: 1920, not 1,920.
+        format={{ useGrouping: false }}
         onValueChange={commit(onWidthChange)}
       >
         <InputGroupAddon>
@@ -69,6 +71,7 @@ export function DimensionInput({
         value={heightValue}
         min={MIN_DIMENSION}
         max={MAX_DIMENSION}
+        format={{ useGrouping: false }}
         onValueChange={commit(onHeightChange)}
       >
         <InputGroupAddon>

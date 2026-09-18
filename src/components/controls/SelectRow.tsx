@@ -44,7 +44,10 @@ export function SelectRow<T extends string | number>({
           if (next != null) onChange(next);
         }}
       >
-        <SelectTrigger aria-label={label}>
+        {/* Fixed 120px rather than filling the row. A full-width control only
+            reads well under its label, not beside it. flex-none undoes the
+            trigger's own flex-1. */}
+        <SelectTrigger className="w-30 flex-none" aria-label={label}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent align="end">

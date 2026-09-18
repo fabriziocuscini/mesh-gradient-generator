@@ -144,8 +144,8 @@ test("export fields clamp, and the format select reveals quality", async ({
   const width = page.getByLabel("Export width");
   for (const [typed, expected] of [
     ["50", "100"],
-    ["99999", "7,680"],
-    ["2560", "2,560"],
+    ["99999", "7680"],
+    ["2560", "2560"],
   ]) {
     await width.click({ clickCount: 3 });
     await page.keyboard.press("ControlOrMeta+a");
