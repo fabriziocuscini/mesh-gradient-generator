@@ -122,8 +122,11 @@ export function FloatingToolbar() {
         e.clientY <= r.bottom + WHEEL_ZONE_PADDING;
       if (!inZone) return;
 
-      if (e.deltaY > WHEEL_THRESHOLD) setCollapsed(true);
-      else if (e.deltaY < -WHEEL_THRESHOLD) setCollapsed(false);
+      // A downward flick reports a negative deltaY under macOS natural
+      // scrolling, so the sign here follows the finger, not the number: push
+      // the bar down to stow it, pull up to bring it back.
+      if (e.deltaY < -WHEEL_THRESHOLD) setCollapsed(true);
+      else if (e.deltaY > WHEEL_THRESHOLD) setCollapsed(false);
     };
 
     window.addEventListener("wheel", handleWheel, { passive: true });
