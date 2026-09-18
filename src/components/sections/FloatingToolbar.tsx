@@ -24,7 +24,9 @@ const TOOLBAR_BUTTON = "size-8";
 /** The collapsed bar: a tab flush with the bottom edge of the canvas, with
  *  only its top corners rounded, the way a drawer pull looks. */
 const TAB = cn(
-  "flex h-7 w-18 items-center justify-center rounded-t-xl",
+  // rounded-b-none is explicit: the Button's own rounded-md would otherwise
+  // keep the bottom corners, and this is a panel peeking out, not a button.
+  "flex h-7 w-18 items-center justify-center rounded-t-xl rounded-b-none",
   "bg-white-1000 shadow-400 inset-ring inset-ring-black-100",
   "dark:bg-grey-800 dark:inset-ring-white-200",
 );
@@ -237,7 +239,13 @@ export function FloatingToolbar() {
             aria-label="Show toolbar"
             variant="ghost"
             size="icon"
-            className={cn(TAB, "pointer-events-auto p-0")}
+            // The ghost variant's hover fill is dropped: the tab reads as a
+            // panel peeking out, and a panel does not light up under the
+            // cursor. The press state stays, as a click still does something.
+            className={cn(
+              TAB,
+              "pointer-events-auto p-0 hover:bg-white-1000 dark:hover:bg-grey-800",
+            )}
             onClick={() => setCollapsed(false)}
           >
             <ChevronUp className="size-4" strokeWidth={1.5} />
