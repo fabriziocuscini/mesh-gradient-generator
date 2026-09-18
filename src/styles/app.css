@@ -58,6 +58,12 @@
 html,
 body {
   min-height: 100vh;
+  /* The app is one screen with its own scroll areas, so the document itself
+     must never scroll or rubber-band. Without this, a wheel gesture over the
+     floating toolbar bounces the whole canvas. */
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body {

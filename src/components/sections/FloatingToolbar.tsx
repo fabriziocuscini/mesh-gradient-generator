@@ -122,6 +122,10 @@ export function FloatingToolbar() {
         e.clientY <= r.bottom + WHEEL_ZONE_PADDING;
       if (!inZone) return;
 
+      // Non-passive, so this can stop the gesture reaching the document. The
+      // page has nothing to scroll, but macOS would still rubber-band it.
+      e.preventDefault();
+
       // A downward flick reports a negative deltaY under macOS natural
       // scrolling, so the sign here follows the finger, not the number: push
       // the bar down to stow it, pull up to bring it back.
@@ -129,7 +133,7 @@ export function FloatingToolbar() {
       else if (e.deltaY > WHEEL_THRESHOLD) setCollapsed(false);
     };
 
-    window.addEventListener("wheel", handleWheel, { passive: true });
+    window.addEventListener("wheel", handleWheel, { passive: false });
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
