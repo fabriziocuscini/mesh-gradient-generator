@@ -163,6 +163,8 @@ export function FloatingToolbar() {
         }}
         transition={slide}
       >
+        {/* Playback is its own pill: it acts on time, the rest act on the
+            gradient itself. */}
         <div className={cn(PILL, "pointer-events-auto")}>
           <ActionIconButton
             className={TOOLBAR_BUTTON}
@@ -171,6 +173,9 @@ export function FloatingToolbar() {
             shortcut="P"
             onClick={togglePlayback}
           />
+        </div>
+
+        <div className={cn(PILL, "pointer-events-auto")}>
           {isWebAudioSupported && (
             // The flash wrapper is outside the tooltip: Base UI's trigger
             // renders the button itself, so a motion.div in between would have
@@ -207,9 +212,6 @@ export function FloatingToolbar() {
             shortcut="R"
             onClick={randomizePalette}
           />
-        </div>
-
-        <div className={cn(PILL, "pointer-events-auto")}>
           <ImageColorPicker triggerClassName={TOOLBAR_BUTTON} />
         </div>
       </motion.div>
