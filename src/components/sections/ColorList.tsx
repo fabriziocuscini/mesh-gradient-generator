@@ -6,7 +6,7 @@ import { useGradientStore } from "@/store/gradientStore";
 import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/controls/ColorPicker";
 import { ActionIconButton } from "@/components/controls/ActionIconButton";
-import { randomHexColor } from "@/lib/colors";
+import { harmoniousHexColor } from "@/lib/colors";
 
 const MAX_COLORS = 10;
 const MIN_COLORS = 2;
@@ -78,7 +78,7 @@ export function ColorListActions() {
     <ActionIconButton
       icon={Plus}
       label="Add color"
-      onClick={() => addColor(randomHexColor())}
+      onClick={() => addColor(harmoniousHexColor(colors.map((c) => c.hex)))}
     />
   );
 }
