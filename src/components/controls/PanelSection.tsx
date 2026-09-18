@@ -5,6 +5,7 @@ import {
   CollapsiblePanel,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 interface PanelSectionProps {
   title: string;
@@ -24,9 +25,22 @@ export function PanelSection({
   children,
 }: PanelSectionProps) {
   return (
-    <Collapsible open={open} onOpenChange={onOpenChange} className="pt-2">
+    <Collapsible
+      open={open}
+      onOpenChange={onOpenChange}
+      // Closed, the header is the whole section, so it needs the same 8px
+      // below as above. Open, the panel's own pb-4 closes the section off.
+      className={cn("pt-2", !open && "pb-2")}
+    >
       <div className="flex h-8 items-center justify-between gap-1 px-4">
-        <CollapsibleTrigger className="group -ml-1 flex min-w-0 flex-1 items-center gap-0.5 pl-1 text-black-800 dark:text-white-1000">
+        <CollapsibleTrigger
+          className={cn(
+            "group -ml-1 flex min-w-0 flex-1 items-center gap-0.5 pl-1",
+            open
+              ? "text-black-800 dark:text-white-1000"
+              : "text-black-500 dark:text-white-500",
+          )}
+        >
           <ChevronRight className="size-3 shrink-0 text-black-500 transition-transform duration-150 group-data-panel-open:rotate-90 dark:text-white-500" />
           <span className="typography-body-medium-strong truncate">
             {title}

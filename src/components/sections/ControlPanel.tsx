@@ -287,6 +287,8 @@ export function ControlPanel() {
             {exporting ? "Exporting…" : `Download ${currentFormat.label}`}
           </Button>
         </PanelSection>
+
+        <Separator />
       </div>
     </div>
   );
