@@ -26,7 +26,7 @@ const TOOLBAR_BUTTON = "size-8";
 const TAB = cn(
   // rounded-b-none is explicit: the Button's own rounded-md would otherwise
   // keep the bottom corners, and this is a panel peeking out, not a button.
-  "flex h-7 w-18 items-center justify-center rounded-t-xl rounded-b-none",
+  "flex h-5 w-30 items-center justify-center rounded-t-xl rounded-b-none",
   "bg-white-1000 shadow-400 inset-ring inset-ring-black-100",
   "dark:bg-grey-800 dark:inset-ring-white-200",
 );
@@ -231,7 +231,7 @@ export function FloatingToolbar() {
       <motion.div
         className="absolute inset-x-0 -bottom-6 flex justify-center"
         inert={!collapsed}
-        animate={{ y: collapsed ? 0 : 28 }}
+        animate={{ y: collapsed ? 0 : 20 }}
         transition={slide}
       >
         <Tooltip content="Show toolbar">
