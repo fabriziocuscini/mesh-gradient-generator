@@ -235,7 +235,9 @@ export function FloatingToolbar() {
         // page loads with the tab on screen and then slides it away.
         initial={false}
         animate={{ y: collapsed ? 0 : 20 }}
-        transition={slide}
+        // Appearing, the tab waits for the bar to finish sliding off, so the
+        // two never share the screen. Going away, it leaves at once.
+        transition={{ ...slide, delay: collapsed ? slide.duration : 0 }}
       >
         <Tooltip content="Show toolbar">
           <Button
