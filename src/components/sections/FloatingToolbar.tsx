@@ -7,7 +7,9 @@ import {
   Palette,
   Pause,
   Play,
+  Redo2,
   Shuffle,
+  Undo2,
 } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import { ActionIconButton } from "@/components/controls/ActionIconButton";
@@ -31,12 +33,19 @@ const TAB = cn(
   "dark:bg-grey-800 dark:inset-ring-white-200",
 );
 
-/** One surface shared by both pills, copied from the popover's. */
+/** One surface shared by all three pills, copied from the popover's. */
 const PILL = cn(
   "flex items-center gap-0.5 rounded-xl p-1.5",
   "bg-white-1000 shadow-400 inset-ring inset-ring-black-100",
   "dark:bg-grey-800 dark:inset-ring-white-200",
 );
+
+/** The modifier the undo tooltips name. Matches what App.tsx listens for,
+ *  which takes either key. */
+const UNDO_KEY =
+  typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform)
+    ? "Cmd"
+    : "Ctrl";
 
 /** How far outside the bar a wheel event still counts, in pixels. Collapsed,
  *  the bar is a 44px handle, so this is what makes it easy to scroll back up. */
@@ -67,6 +76,12 @@ export function FloatingToolbar() {
   );
   const isPlaying = useGradientStore((s) => s.isPlaying);
   const togglePlayback = useGradientStore((s) => s.togglePlayback);
+  const undo = useGradientStore((s) => s.undo);
+  const redo = useGradientStore((s) => s.redo);
+  // Selected as booleans, so the toolbar only re-renders when a button
+  // actually changes state, not on every entry pushed onto the history.
+  const canUndo = useGradientStore((s) => s._past.length > 0);
+  const canRedo = useGradientStore((s) => s._future.length > 0);
 
   const [clapEnabled, setClapEnabled] = useState(false);
   const [clapFlash, setClapFlash] = useState(false);
@@ -223,6 +238,27 @@ export function FloatingToolbar() {
             onClick={randomizePalette}
           />
           <ImageColorPicker triggerClassName={TOOLBAR_BUTTON} />
+        </div>
+
+        {/* Undo and redo get their own pill on the right: they undo whatever
+            the other two pills just did, so they do not belong in either. */}
+        <div className={cn(PILL, "pointer-events-auto")}>
+          <ActionIconButton
+            className={TOOLBAR_BUTTON}
+            icon={Undo2}
+            label="Undo"
+            shortcut={`${UNDO_KEY}+Z`}
+            disabled={!canUndo}
+            onClick={undo}
+          />
+          <ActionIconButton
+            className={TOOLBAR_BUTTON}
+            icon={Redo2}
+            label="Redo"
+            shortcut={`${UNDO_KEY}+Shift+Z`}
+            disabled={!canRedo}
+            onClick={redo}
+          />
         </div>
       </motion.div>
 
