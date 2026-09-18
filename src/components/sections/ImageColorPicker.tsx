@@ -152,7 +152,10 @@ export function ImageColorPicker({ triggerClassName }: ImageColorPickerProps) {
         />
       </Tooltip>
 
-      <DialogPopup className="w-[min(640px,calc(100vw-48px))] p-6">
+      {/* 40px of padding, not 24: the close button sits 8px in and is 24px
+          across, so at 24 the dashed drop zone ran under it and its hover fill
+          touched the dashes. This clears the button by 8px on both sides. */}
+      <DialogPopup className="w-[min(640px,calc(100vw-48px))] p-10">
         <DialogTitle className="sr-only">
           Extract a palette from an image
         </DialogTitle>
