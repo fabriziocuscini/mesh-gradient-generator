@@ -184,7 +184,9 @@ test("colours can be typed, added, removed and reordered", async ({ page }) => {
     await expect.poll(rowCount).toBe(n + 1);
   }
   expect(await rowCount()).toBe(10);
-  await expect(page.getByRole("button", { name: "Add color" })).toHaveCount(0);
+  // At the cap the button stays on screen and greys out, so the header keeps
+  // its shape.
+  await expect(page.getByRole("button", { name: "Add color" })).toBeDisabled();
 
   for (let guard = 0; (await rowCount()) > 2 && guard < 12; guard++) {
     const n = await rowCount();

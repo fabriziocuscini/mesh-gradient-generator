@@ -38,11 +38,16 @@ const buttonVariants = cva(
           "bg-green-500 text-white-1000 active:bg-green-600 active:outline active:-outline-offset-1 disabled:bg-grey-500 dark:active:outline-green-500",
           solidFocusRing,
         ),
-        link: "text-blue-600 focus-visible:inset-ring focus-visible:inset-ring-blue-500 active:bg-blue-200 disabled:text-grey-500 dark:text-blue-400 dark:active:bg-pale-blue-800",
+        /* FIGUI PATCH - as ghost above. Re-apply on upgrade. */
+        link: "text-blue-600 focus-visible:inset-ring focus-visible:inset-ring-blue-500 active:bg-blue-200 disabled:opacity-disabled dark:text-blue-400 dark:active:bg-pale-blue-800",
         linkDanger:
           "text-red-600 focus-visible:inset-ring focus-visible:inset-ring-red-300 active:bg-red-200 disabled:text-red-400 dark:text-red-400 dark:focus-visible:inset-ring-red-700 dark:active:bg-pale-red-800",
+        /* FIGUI PATCH - upstream dims a disabled ghost button to grey-500,
+           which on a white surface is barely apart from the near-black icon it
+           replaces. Fade the whole button through the app's opacity-disabled
+           token instead. Re-apply on upgrade. */
         ghost:
-          "border-none hover:bg-black-200 focus-visible:inset-ring focus-visible:inset-ring-blue-500 active:bg-black-1000/15 disabled:text-grey-500",
+          "border-none hover:bg-black-200 focus-visible:inset-ring focus-visible:inset-ring-blue-500 active:bg-black-1000/15 disabled:opacity-disabled",
       },
       size: {
         default: "h-6 px-2 has-[>svg]:px-3",

@@ -1,6 +1,9 @@
+/* FIGUI PATCH - upstream's disabled state is a hard-coded opacity-50. It now
+   reads the app's opacity-disabled token, so every disabled control in the app
+   fades by the same amount. Re-apply on upgrade. */
 import { cn } from "@/lib/utils";
 import { Menu as BaseMenu } from "@base-ui/react";
-import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import * as React from "react";
 
 const Menu = BaseMenu.Root;
@@ -73,7 +76,7 @@ function MenuItem({
   return (
     <BaseMenu.Item
       className={cn(
-        "typography-body-medium flex cursor-default items-center gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-blue-500",
+        "typography-body-medium flex cursor-default items-center gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-disabled data-highlighted:bg-blue-500",
         inset && "pl-8",
         className,
       )}
@@ -91,7 +94,7 @@ function MenuCheckboxItem({
   return (
     <BaseMenu.CheckboxItem
       className={cn(
-        "typography-body-medium grid cursor-default grid-cols-[0.75rem_1fr] gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-blue-500",
+        "typography-body-medium grid cursor-default grid-cols-[0.75rem_1fr] gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-disabled data-highlighted:bg-blue-500",
         className,
       )}
       checked={checked}
@@ -113,13 +116,17 @@ function MenuRadioItem({
   return (
     <BaseMenu.RadioItem
       className={cn(
-        "typography-body-medium grid cursor-default grid-cols-[0.75rem_1fr] gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-blue-500",
+        "typography-body-medium grid cursor-default grid-cols-[0.75rem_1fr] gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-disabled data-highlighted:bg-blue-500",
         className,
       )}
       {...props}
     >
       <BaseMenu.RadioItemIndicator className="col-start-1 flex items-center justify-center">
-        <CircleIcon className="size-2 fill-current" />
+        {/* FIGUI PATCH - upstream marks the chosen radio item with a filled
+            dot, while a Select marks its chosen item with a tick. The app
+            uses both for the same job, one in a panel row and one in a
+            header menu, so they carry the same mark. Re-apply on upgrade. */}
+        <CheckIcon className="size-3" />
       </BaseMenu.RadioItemIndicator>
       <span className="col-start-2">{children}</span>
     </BaseMenu.RadioItem>
@@ -174,7 +181,7 @@ function MenuSubTrigger({
   return (
     <BaseMenu.SubmenuTrigger
       className={cn(
-        "typography-body-medium flex cursor-default items-center gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-blue-500 data-popup-open:bg-blue-500",
+        "typography-body-medium flex cursor-default items-center gap-2 rounded-md px-2 py-1 text-white-1000 outline-none data-disabled:pointer-events-none data-disabled:opacity-disabled data-highlighted:bg-blue-500 data-popup-open:bg-blue-500",
         inset && "pl-8",
         className,
       )}

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { livePositionsRef } from "@/lib/drift";
+import { type ColorStrategy, DEFAULT_COLOR_STRATEGY } from "@/lib/colors";
 import {
   type ColorPoint,
   type ExportFormat,
@@ -95,6 +96,30 @@ function jump(
   return {
     ...makeSnapshot(state),
     transitionNonce: state.transitionNonce + 1,
+    // A jump decides what the canvas shows, so any hover preview standing in
+    // front of it is over.
+    previewGradientTypeIndex: null,
+    previewWarpShapeIndex: null,
+  };
+}
+
+/**
+ * Commits a value the canvas may already be showing, because the pointer was
+ * resting on that menu item. The snapshot is taken either way, so the choice
+ * can be undone, but the crossfade only fires when the picture really changes
+ * — fading one frame into the same frame is a flash for nothing.
+ */
+function commitPreviewed(
+  state: UndoableState & { _past: UndoableState[]; transitionNonce: number },
+  showing: number,
+  next: number,
+) {
+  return {
+    ...makeSnapshot(state),
+    transitionNonce:
+      showing === next ? state.transitionNonce : state.transitionNonce + 1,
+    previewGradientTypeIndex: null,
+    previewWarpShapeIndex: null,
   };
 }
 
@@ -115,11 +140,28 @@ export interface GradientStore {
   isPlaying: boolean;
   transitionNonce: number;
 
+  /**
+   * What the canvas shows while the pointer rests on a menu item, before any
+   * click. Null means the committed value is on screen. Deliberately outside
+   * UndoableState: a look is not an edit.
+   */
+  previewGradientTypeIndex: number | null;
+  previewWarpShapeIndex: number | null;
+
+  /**
+   * The rule the + button follows when it picks a colour. A working
+   * preference, not part of the composition, so it stays out of the history.
+   */
+  colorStrategy: ColorStrategy;
+
   _past: UndoableState[];
   _future: UndoableState[];
 
   setGradientTypeIndex: (index: number) => void;
   setWarpShapeIndex: (index: number) => void;
+  setPreviewGradientTypeIndex: (index: number | null) => void;
+  setPreviewWarpShapeIndex: (index: number | null) => void;
+  setColorStrategy: (strategy: ColorStrategy) => void;
   setWarpRatio: (value: number) => void;
   setWarpSize: (value: number) => void;
   setNoiseRatio: (value: number) => void;
@@ -163,15 +205,54 @@ export const useGradientStore = create<GradientStore>((set) => ({
   clapDetectionActive: false,
   isPlaying: initialPlayback(),
   transitionNonce: 0,
+  previewGradientTypeIndex: null,
+  previewWarpShapeIndex: null,
+  colorStrategy: DEFAULT_COLOR_STRATEGY,
 
   _past: [],
   _future: [],
 
   setGradientTypeIndex: (index) =>
-    set((state) => ({ ...jump(state), gradientTypeIndex: index })),
+    set((state) => ({
+      ...commitPreviewed(
+        state,
+        state.previewGradientTypeIndex ?? state.gradientTypeIndex,
+        index,
+      ),
+      gradientTypeIndex: index,
+    })),
 
   setWarpShapeIndex: (index) =>
-    set((state) => ({ ...jump(state), warpShapeIndex: index })),
+    set((state) => ({
+      ...commitPreviewed(
+        state,
+        state.previewWarpShapeIndex ?? state.warpShapeIndex,
+        index,
+      ),
+      warpShapeIndex: index,
+    })),
+
+  setPreviewGradientTypeIndex: (index) =>
+    set((state) => {
+      const showing = state.previewGradientTypeIndex ?? state.gradientTypeIndex;
+      const next = index ?? state.gradientTypeIndex;
+      return {
+        previewGradientTypeIndex: index,
+        transitionNonce:
+          showing === next ? state.transitionNonce : state.transitionNonce + 1,
+      };
+    }),
+
+  setPreviewWarpShapeIndex: (index) =>
+    set((state) => {
+      const showing = state.previewWarpShapeIndex ?? state.warpShapeIndex;
+      const next = index ?? state.warpShapeIndex;
+      return {
+        previewWarpShapeIndex: index,
+        transitionNonce:
+          showing === next ? state.transitionNonce : state.transitionNonce + 1,
+      };
+    }),
 
   setWarpRatio: (value) => set({ warpRatio: value }),
   setWarpSize: (value) => set({ warpSize: value }),
@@ -200,7 +281,9 @@ export const useGradientStore = create<GradientStore>((set) => ({
       const safe = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : "#888888";
       return {
         ...jump(state),
-        colors: [...state.colors, createColorPoint(safe)],
+        // The new swatch goes on top, where the + button that made it is,
+        // so it is the first row to hand rather than the last.
+        colors: [createColorPoint(safe), ...state.colors],
       };
     }),
 
@@ -255,6 +338,8 @@ export const useGradientStore = create<GradientStore>((set) => ({
       };
     }),
 
+  setColorStrategy: (strategy) => set({ colorStrategy: strategy }),
+
   setHighlightedColorId: (id) => set({ highlightedColorId: id }),
   setSelectedColorId: (id) =>
     set({ selectedColorId: id, highlightedColorId: id }),
@@ -298,6 +383,8 @@ export const useGradientStore = create<GradientStore>((set) => ({
         transitionNonce: state.transitionNonce + 1,
         highlightedColorId: null,
         selectedColorId: null,
+        previewGradientTypeIndex: null,
+        previewWarpShapeIndex: null,
       };
     }),
 
@@ -312,6 +399,8 @@ export const useGradientStore = create<GradientStore>((set) => ({
         transitionNonce: state.transitionNonce + 1,
         highlightedColorId: null,
         selectedColorId: null,
+        previewGradientTypeIndex: null,
+        previewWarpShapeIndex: null,
       };
     }),
 }));

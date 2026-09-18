@@ -1,12 +1,25 @@
 import { AnimatePresence, motion } from "motion/react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
-import { Plus } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/controls/ColorPicker";
 import { ActionIconButton } from "@/components/controls/ActionIconButton";
-import { randomHexColor } from "@/lib/colors";
+import {
+  COLOR_STRATEGIES,
+  paletteHexColor,
+  type ColorStrategy,
+} from "@/lib/colors";
+import { Button } from "@/components/ui/button";
+import {
+  Menu,
+  MenuContent,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "@/components/ui/menu";
+import { Tooltip } from "@/components/controls/Tooltip";
 
 const MAX_COLORS = 10;
 const MIN_COLORS = 2;
@@ -71,15 +84,61 @@ function SortableColorItem({
 export function ColorListActions() {
   const colors = useGradientStore((s) => s.colors);
   const addColor = useGradientStore((s) => s.addColor);
-
-  if (colors.length >= MAX_COLORS) return null;
+  const colorStrategy = useGradientStore((s) => s.colorStrategy);
+  const setColorStrategy = useGradientStore((s) => s.setColorStrategy);
 
   return (
-    <ActionIconButton
-      icon={Plus}
-      label="Add color"
-      onClick={() => addColor(randomHexColor())}
-    />
+    <>
+      <Menu>
+        <Tooltip content="How new colors are picked">
+          <MenuTrigger
+            render={
+              <Button
+                aria-label="How new colors are picked"
+                variant="ghost"
+                size="icon"
+              />
+            }
+          >
+            <MoreHorizontal className="size-4" strokeWidth={1.5} />
+          </MenuTrigger>
+        </Tooltip>
+        <MenuContent align="end">
+          <MenuRadioGroup
+            value={colorStrategy}
+            onValueChange={(value) => setColorStrategy(value as ColorStrategy)}
+          >
+            {COLOR_STRATEGIES.map((strategy) => (
+              // Base UI keeps a radio menu open by default, which leaves a
+              // backdrop over the plus button. Picking a rule is the whole
+              // point of this menu, so close on the click.
+              <MenuRadioItem
+                key={strategy.value}
+                value={strategy.value}
+                closeOnClick
+              >
+                {strategy.label}
+              </MenuRadioItem>
+            ))}
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+      {/* Greyed out at the ten-colour cap rather than taken away, so the
+          header keeps its shape and the limit is visible. */}
+      <ActionIconButton
+        icon={Plus}
+        label="Add color"
+        disabled={colors.length >= MAX_COLORS}
+        onClick={() =>
+          addColor(
+            paletteHexColor(
+              colors.map((c) => c.hex),
+              colorStrategy,
+            ),
+          )
+        }
+      />
+    </>
   );
 }
 

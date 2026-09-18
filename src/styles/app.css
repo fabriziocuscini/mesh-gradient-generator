@@ -55,6 +55,15 @@
   --color-ink-strong: var(--ink-strong);
 }
 
+/* One answer for "this control is off", as `opacity-disabled`. FigUI dims a
+   disabled ghost button by colour alone, grey-500 against a near-black icon,
+   and on a white pill the two read almost the same. Fading the whole control
+   is the difference the eye actually catches, and it works the same on an
+   icon, a label and a border. */
+@theme {
+  --opacity-disabled: 0.35;
+}
+
 html,
 body {
   min-height: 100vh;

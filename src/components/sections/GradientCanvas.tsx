@@ -64,8 +64,15 @@ export function GradientCanvas() {
   const [hoveredAnchorId, setHoveredAnchorId] = useState<string | null>(null);
 
   const colors = useGradientStore((s) => s.colors);
-  const gradientTypeIndex = useGradientStore((s) => s.gradientTypeIndex);
-  const warpShapeIndex = useGradientStore((s) => s.warpShapeIndex);
+  // What the canvas paints is the hover preview when there is one, and the
+  // committed value otherwise. Everything else — export, undo, the menu's own
+  // tick — still reads the committed value from the store.
+  const gradientTypeIndex = useGradientStore(
+    (s) => s.previewGradientTypeIndex ?? s.gradientTypeIndex,
+  );
+  const warpShapeIndex = useGradientStore(
+    (s) => s.previewWarpShapeIndex ?? s.warpShapeIndex,
+  );
   const warpRatio = useGradientStore((s) => s.warpRatio);
   const warpSize = useGradientStore((s) => s.warpSize);
   const noiseRatio = useGradientStore((s) => s.noiseRatio);
