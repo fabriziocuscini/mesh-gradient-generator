@@ -35,10 +35,10 @@ export function PanelSection({
       <div className="flex h-8 items-center justify-between gap-1 px-4">
         <CollapsibleTrigger
           className={cn(
-            "group -ml-1 flex min-w-0 flex-1 items-center gap-0.5 pl-1",
+            "group -ml-1 flex min-w-0 flex-1 items-center gap-0.5 pl-1 transition-colors duration-150",
             open
               ? "text-black-800 dark:text-white-1000"
-              : "text-black-500 dark:text-white-500",
+              : "text-black-500 hover:text-black-800 dark:text-white-500 dark:hover:text-white-1000",
           )}
         >
           <ChevronRight className="size-3 shrink-0 text-black-500 transition-transform duration-150 group-data-panel-open:rotate-90 dark:text-white-500" />
