@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import { Box } from "@chakra-ui/react";
+import { type CSSProperties, useRef } from "react";
 import { anchorInset } from "@/lib/anchorPosition";
 
 const CLICK_THRESHOLD = 4;
@@ -78,38 +77,36 @@ export function ColorAnchorPoint({
   };
 
   return (
-    <Box
+    <div
       ref={nodeRef}
-      position="absolute"
-      left={anchorInset(x)}
-      top={anchorInset(y)}
-      transform="translate(-50%, -50%)"
-      cursor="grab"
-      _active={{ cursor: "grabbing" }}
+      /*
+       * The offset reaches `left`/`top` through a class, not through this style
+       * object, and that indirection is load-bearing. The playback loop writes
+       * `node.style.left` every frame and clears it on pause; an inline `left`
+       * here would be what it cleared, leaving nothing behind and dropping
+       * every anchor into the corner. Feeding the class a custom property
+       * instead means the inline value wins while playing and the class is
+       * still there, up to date, the moment it is cleared.
+       */
+      style={
+        {
+          "--anchor-x": anchorInset(x),
+          "--anchor-y": anchorInset(y),
+        } as CSSProperties
+      }
+      className="absolute top-(--anchor-y) left-(--anchor-x) z-[1] -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none select-none active:cursor-grabbing"
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      zIndex={1}
-      userSelect="none"
-      touchAction="none"
     >
-      <Box
-        width="22px"
-        height="22px"
-        borderRadius="full"
-        border="2px solid white"
-        shadow="0 1px 4px rgba(0,0,0,0.3)"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        transition="transform 0.15s ease"
-        _hover={{ transform: "scale(1.25)" }}
-        _active={{ transform: "scale(1.1)" }}
-      >
-        <Box width="14px" height="14px" borderRadius="full" bg={hex} />
-      </Box>
-    </Box>
+      <div className="flex size-[22px] items-center justify-center rounded-full border-2 border-white-1000 shadow-[0_1px_4px_rgba(0,0,0,0.3)] transition-transform duration-150 ease-out hover:scale-125 active:scale-110">
+        <div
+          className="size-[14px] rounded-full"
+          style={{ backgroundColor: hex }}
+        />
+      </div>
+    </div>
   );
 }

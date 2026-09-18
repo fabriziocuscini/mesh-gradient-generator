@@ -1,15 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-  Box,
-  Button,
-  HStack,
-  IconButton,
-  Separator,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import { Download, Github, Shuffle } from "lucide-react";
-import { ActionIconButton } from "@/components/ui/ActionIconButton";
+import { Download, Github, Loader2, Shuffle } from "lucide-react";
+import { ActionIconButton } from "@/components/controls/ActionIconButton";
 import { useGradientStore } from "@/store/gradientStore";
 import {
   GRADIENT_TYPES,
@@ -21,7 +12,6 @@ import {
   DEFAULT_EXPORT_QUALITY,
   MIN_EXPORT_QUALITY,
   MAX_EXPORT_QUALITY,
-  type ExportFormat,
 } from "@/types";
 import {
   hexToNormalizedRgb,
@@ -30,12 +20,17 @@ import {
 } from "@/lib/colors";
 import { livePositionsRef } from "@/lib/drift";
 import { exportImage } from "@/lib/export";
-import { GradientSelect } from "@/components/ui/GradientSelect";
-import { LabeledSlider } from "@/components/ui/LabeledSlider";
-import { DimensionInput } from "@/components/ui/DimensionInput";
-import { ColorModeButton } from "@/components/ui/color-mode";
-import { Tooltip } from "@/components/ui/tooltip";
-import { ColorList } from "./ColorList";
+import { SelectRow } from "@/components/controls/SelectRow";
+import { LabeledSlider } from "@/components/controls/LabeledSlider";
+import { DimensionInput } from "@/components/controls/DimensionInput";
+import { PanelSection } from "@/components/controls/PanelSection";
+import { ThemeModeControl } from "@/components/controls/theme";
+import { Tooltip } from "@/components/controls/Tooltip";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ColorList, ColorListActions } from "./ColorList";
+
+type SectionName = "gradient" | "effects" | "colors" | "export";
 
 export function ControlPanel() {
   const gradientTypeIndex = useGradientStore((s) => s.gradientTypeIndex);
@@ -61,6 +56,16 @@ export function ControlPanel() {
   const pushHistory = useGradientStore((s) => s.pushHistory);
 
   const [exporting, setExporting] = useState(false);
+  // Not persisted, like the rest of this app's state.
+  const [openSections, setOpenSections] = useState<
+    Record<SectionName, boolean>
+  >({ gradient: true, effects: true, colors: true, export: true });
+
+  const toggle = useCallback(
+    (name: SectionName) => (open: boolean) =>
+      setOpenSections((prev) => ({ ...prev, [name]: open })),
+    [],
+  );
 
   const currentFormat = useMemo(
     () =>
@@ -68,7 +73,7 @@ export function ControlPanel() {
     [exportFormat],
   );
 
-  const formatSelectOptions = useMemo(
+  const formatOptions = useMemo(
     () => EXPORT_FORMATS.map((f) => ({ label: f.label, value: f.value })),
     [],
   );
@@ -114,142 +119,124 @@ export function ControlPanel() {
     }
   }, []);
 
+  // t.id is a shader id, not an array index — pass it through untouched.
   const gradientOptions = GRADIENT_TYPES.map((t) => ({
     label: t.name,
-    value: String(t.id),
+    value: t.id,
   }));
 
   const warpOptions = WARP_SHAPES.map((s) => ({
     label: s.name,
-    value: String(s.id),
+    value: s.id,
   }));
 
   return (
-    <VStack
-      align="stretch"
-      gap="0"
-      height="100%"
-      bg={{ base: "white", _dark: "gray.950" }}
-      overflow="hidden"
-    >
-      {/* Header */}
-      <HStack justify="space-between" px="4" py="3" flexShrink={0}>
-        <Text textStyle="sm" fontWeight="semibold" color="fg">
+    <div className="flex h-full flex-col overflow-hidden bg-white-1000 dark:bg-grey-800">
+      <div className="flex h-11 shrink-0 items-center justify-between gap-1 px-4">
+        <span className="typography-body-large-strong text-ink">
           Mesh Gradient
-        </Text>
-        <HStack gap="0">
-          <Tooltip content="GitHub repository" openDelay={400} closeDelay={0}>
-            <IconButton
-              asChild
-              variant="ghost"
-              aria-label="GitHub repository"
-              size="2xs"
-            >
-              <a
-                href="https://github.com/fabriziocuscini/mesh-gradient-generator"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Github />
-              </a>
-            </IconButton>
-          </Tooltip>
-          <ColorModeButton />
-        </HStack>
-      </HStack>
+        </span>
+        <ThemeModeControl />
+      </div>
 
       <Separator />
 
-      {/* Scrollable controls */}
-      <Box flex="1" overflowY="auto" py="4">
-        <VStack align="stretch" gap="5">
-          {/* Gradient & Warp type */}
-          <VStack align="stretch" gap="3" px="4">
-            <GradientSelect
-              label="Gradient"
-              value={String(gradientTypeIndex)}
-              options={gradientOptions}
-              onChange={(v) => setGradientTypeIndex(Number(v))}
-            />
-            <GradientSelect
-              label="Warp Shape"
-              value={String(warpShapeIndex)}
-              options={warpOptions}
-              onChange={(v) => setWarpShapeIndex(Number(v))}
-            />
-          </VStack>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <PanelSection
+          title="Gradient"
+          open={openSections.gradient}
+          onOpenChange={toggle("gradient")}
+        >
+          <SelectRow
+            label="Gradient"
+            value={gradientTypeIndex}
+            options={gradientOptions}
+            onChange={setGradientTypeIndex}
+          />
+          <SelectRow
+            label="Warp Shape"
+            value={warpShapeIndex}
+            options={warpOptions}
+            onChange={setWarpShapeIndex}
+          />
+        </PanelSection>
 
-          <Separator />
-
-          {/* Effects */}
-          <VStack align="stretch" gap="4" px="4">
-            <HStack justify="space-between">
-              <Text textStyle="xs" fontWeight="medium" color="fg">
-                Effects
-              </Text>
-              <ActionIconButton
-                icon={Shuffle}
-                label="Randomize effects"
-                shortcut="Shift+Space"
-                onClick={randomizeEffects}
-              />
-            </HStack>
-            <LabeledSlider
-              label="Warp"
-              value={warpRatio}
-              min={0}
-              max={1}
-              step={0.01}
-              defaultValue={DEFAULT_WARP_RATIO}
-              onChange={setWarpRatio}
-              onChangeStart={pushHistory}
-            />
-            <LabeledSlider
-              label="Warp Size"
-              value={warpSize}
-              min={0}
-              max={5}
-              step={0.01}
-              defaultValue={DEFAULT_WARP_SIZE}
-              onChange={setWarpSize}
-              onChangeStart={pushHistory}
-            />
-            <LabeledSlider
-              label="Noise"
-              value={noiseRatio}
-              min={0}
-              max={0.2}
-              step={0.01}
-              defaultValue={DEFAULT_NOISE_RATIO}
-              onChange={setNoiseRatio}
-              onChangeStart={pushHistory}
-            />
-          </VStack>
-
-          <Separator />
-
-          {/* Colors */}
-          <VStack align="stretch" gap="4" px="4">
-            <ColorList />
-          </VStack>
-        </VStack>
-      </Box>
-
-      {/* Footer – Export */}
-      <VStack align="stretch" gap="3" flexShrink={0}>
         <Separator />
-        <VStack align="stretch" gap="3" px="4" pb="4">
-          <Text textStyle="xs" fontWeight="medium" color="fg.muted">
-            Export
-          </Text>
+
+        <PanelSection
+          title="Effects"
+          open={openSections.effects}
+          onOpenChange={toggle("effects")}
+          actions={
+            <ActionIconButton
+              icon={Shuffle}
+              label="Randomize effects"
+              shortcut="Shift+Space"
+              onClick={randomizeEffects}
+            />
+          }
+        >
+          <LabeledSlider
+            label="Warp"
+            value={warpRatio}
+            min={0}
+            max={1}
+            step={0.01}
+            defaultValue={DEFAULT_WARP_RATIO}
+            onChange={setWarpRatio}
+            onChangeStart={pushHistory}
+          />
+          <LabeledSlider
+            label="Warp Size"
+            value={warpSize}
+            min={0}
+            max={5}
+            step={0.01}
+            defaultValue={DEFAULT_WARP_SIZE}
+            onChange={setWarpSize}
+            onChangeStart={pushHistory}
+          />
+          <LabeledSlider
+            label="Noise"
+            value={noiseRatio}
+            min={0}
+            max={0.2}
+            step={0.01}
+            defaultValue={DEFAULT_NOISE_RATIO}
+            onChange={setNoiseRatio}
+            onChangeStart={pushHistory}
+          />
+        </PanelSection>
+
+        <Separator />
+
+        <PanelSection
+          title="Colors"
+          open={openSections.colors}
+          onOpenChange={toggle("colors")}
+          actions={<ColorListActions />}
+        >
+          <ColorList />
+        </PanelSection>
+
+        <Separator />
+
+        <PanelSection
+          title="Export"
+          open={openSections.export}
+          onOpenChange={toggle("export")}
+        >
           <DimensionInput
             widthValue={width}
             heightValue={height}
             onWidthChange={setWidth}
             onHeightChange={setHeight}
-            formatValue={exportFormat}
-            formatOptions={formatSelectOptions}
-            onFormatChange={(v) => setExportFormat(v as ExportFormat)}
+          />
+          <SelectRow
+            label="Format"
+            value={exportFormat}
+            options={formatOptions}
+            onChange={setExportFormat}
           />
           {currentFormat.lossy && (
             <LabeledSlider
@@ -265,20 +252,51 @@ export function ControlPanel() {
             />
           )}
           <Button
-            size="sm"
-            width="full"
-            variant="solid"
-            colorPalette="gray"
-            rounded="full"
+            variant="primary"
+            size="large"
+            className="mt-1 w-full"
             onClick={handleExport}
-            loading={exporting}
-            loadingText="Exporting…"
+            // Chakra's `loading` also disabled the button. Without that, a
+            // double-click fires two full-resolution WebGL exports.
+            disabled={exporting}
+            aria-busy={exporting}
           >
-            <Download size={14} />
-            Download {currentFormat.label}
+            {exporting ? (
+              <Loader2 className="motion-safe:animate-spin" strokeWidth={1.5} />
+            ) : (
+              <Download strokeWidth={1.5} />
+            )}
+            {exporting ? "Exporting…" : `Download ${currentFormat.label}`}
           </Button>
-        </VStack>
-      </VStack>
-    </VStack>
+        </PanelSection>
+
+        <Separator />
+      </div>
+
+      <Separator />
+
+      <div className="flex h-9 shrink-0 items-center justify-between gap-2 px-4">
+        <span className="typography-body-small truncate text-ink-muted">
+          Fabrizio Cuscini · v{__APP_VERSION__}
+        </span>
+        <Tooltip content="GitHub repository">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6"
+            aria-label="GitHub repository"
+            render={
+              <a
+                href="https://github.com/fabriziocuscini/mesh-gradient-generator"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+          >
+            <Github className="size-4" strokeWidth={1.5} />
+          </Button>
+        </Tooltip>
+      </div>
+    </div>
   );
 }

@@ -1,46 +1,63 @@
-import { Tooltip as ChakraTooltip, Portal } from "@chakra-ui/react";
-import * as React from "react";
+import { Tooltip as BaseTooltip } from "@base-ui/react";
+import { cn } from "@/lib/utils";
 
-export interface TooltipProps extends ChakraTooltip.RootProps {
-  showArrow?: boolean;
-  portalled?: boolean;
-  portalRef?: React.RefObject<HTMLElement | null>;
-  content: React.ReactNode;
-  contentProps?: ChakraTooltip.ContentProps;
-  disabled?: boolean;
+function Tooltip({ children, ...props }: BaseTooltip.Root.Props) {
+  return (
+    <BaseTooltip.Provider delay={0}>
+      <BaseTooltip.Root {...props}>{children}</BaseTooltip.Root>
+    </BaseTooltip.Provider>
+  );
+}
+function TooltipContent({
+  children,
+  className,
+  ...props
+}: BaseTooltip.Positioner.Props) {
+  return (
+    <BaseTooltip.Portal>
+      <BaseTooltip.Positioner sideOffset={10} {...props}>
+        <BaseTooltip.Popup
+          className={cn(
+            "typography-body-medium flex flex-col rounded-md bg-grey-900 px-2 py-1 text-white-1000 shadow-300",
+            className,
+          )}
+        >
+          <BaseTooltip.Arrow className="data-[side=bottom]:top-[-6px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180">
+            <ArrowSvg className="text-grey-900" />
+          </BaseTooltip.Arrow>
+          {children}
+        </BaseTooltip.Popup>
+      </BaseTooltip.Positioner>
+    </BaseTooltip.Portal>
+  );
 }
 
-export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
-  function Tooltip(props, ref) {
-    const {
-      showArrow,
-      children,
-      disabled,
-      portalled = true,
-      content,
-      contentProps,
-      portalRef,
-      ...rest
-    } = props;
+function ArrowSvg({ className, ...props }: React.ComponentProps<"svg">) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="12"
+      height="6"
+      viewBox="0 0 12 6"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M6 5.24537e-07L5.24537e-07 6L12 6L6 5.24537e-07Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
 
-    if (disabled) return children;
+const TooltipTrigger = BaseTooltip.Trigger;
+const TooltipProvider = BaseTooltip.Provider;
+const TooltipRoot = BaseTooltip.Root;
 
-    return (
-      <ChakraTooltip.Root {...rest}>
-        <ChakraTooltip.Trigger asChild>{children}</ChakraTooltip.Trigger>
-        <Portal disabled={!portalled} container={portalRef}>
-          <ChakraTooltip.Positioner>
-            <ChakraTooltip.Content ref={ref} {...contentProps}>
-              {showArrow && (
-                <ChakraTooltip.Arrow>
-                  <ChakraTooltip.ArrowTip />
-                </ChakraTooltip.Arrow>
-              )}
-              {content}
-            </ChakraTooltip.Content>
-          </ChakraTooltip.Positioner>
-        </Portal>
-      </ChakraTooltip.Root>
-    );
-  },
-);
+export {
+  Tooltip,
+  TooltipTrigger,
+  TooltipProvider,
+  TooltipRoot,
+  TooltipContent,
+};

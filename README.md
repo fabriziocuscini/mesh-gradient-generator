@@ -18,7 +18,7 @@ A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 
 ### Color Management
 
 - **2–10 color stops** — add or remove individual colors from the control panel
-- **Hex color picker** — click any anchor point on the canvas or its swatch in the panel to open a full color picker with hex input
+- **Editable hex** — type a hex straight into any color row, or click its swatch (or the matching anchor point on the canvas) to open the full picker
 - **Drag to reorder** — rearrange colors in the list via drag-and-drop handles to control layering
 - **Preset palettes** — starts with one of four curated palettes, randomised on load
 - **Upload an image** — drop or upload any photo to automatically extract a palette; drag anchor points over the image to sample exact colors, then apply the result as your gradient
@@ -68,7 +68,7 @@ Fine-tune distortion with three sliders:
 
 ### Export
 
-- **Custom resolution** — set width and height independently, from 100px up to 7680px (8K)
+- **Custom resolution** — set width and height independently, from 100px up to 7680px (8K); drag the `W` or `H` label to scrub the value
 - **Format selection** — export as **PNG**, **JPEG**, or **WebP**
 - **Quality slider** — adjust compression quality (0–100%) for JPEG and WebP; hidden for lossless PNG
 - Renders to an offscreen WebGL canvas at full resolution and saves as `mesh-gradient-{W}x{H}.{ext}`
@@ -90,6 +90,8 @@ Clap detection also randomises anchor positions when the microphone is enabled.
 
 ### Appearance
 
+- **Figma plugin look** — the control panel is built from [FigUI](https://figui.dev), a copy-paste collection of Figma UI3 components, so it uses Figma's own type scale, greys, blue and 24px row rhythm
+- **Collapsible sections** — Gradient, Effects, Colors and Export each fold away, with their actions staying on the header
 - **Light and dark mode** — toggle via the header button or press `D`
 - **Resizable layout** — the canvas and control panel are split with a draggable divider; double-click the handle to reset
 
@@ -103,12 +105,15 @@ Clap detection also randomises anchor positions when the microphone is enabled.
 | **Build tool**       | [Vite 8](https://vite.dev)                                                          |
 | **Rendering**        | WebGL 2 with custom GLSL vertex & fragment shaders                                  |
 | **Shader imports**   | [vite-plugin-glsl](https://github.com/UstymUkhman/vite-plugin-glsl)                 |
-| **UI components**    | [Chakra UI v3](https://chakra-ui.com) + [Emotion](https://emotion.sh)               |
+| **UI components**    | [FigUI](https://figui.dev) (Figma UI3) on [Base UI](https://base-ui.com)            |
+| **Styling**          | [Tailwind CSS v4](https://tailwindcss.com)                                          |
 | **State management** | [Zustand](https://zustand.docs.pmnd.rs)                                             |
 | **Color picker**     | [react-colorful](https://github.com/omgovich/react-colorful)                        |
 | **Drag & drop**      | [@dnd-kit/react](https://dndkit.com)                                                |
 | **Animations**       | [Motion](https://motion.dev) (AnimatePresence)                                      |
 | **Icons**            | [Lucide React](https://lucide.dev)                                                  |
+| **Colour maths**     | [chroma-js](https://gka.github.io/chroma.js/)                                       |
+| **End-to-end tests** | [Playwright](https://playwright.dev)                                                |
 | **Theming**          | [next-themes](https://github.com/pacocoursey/next-themes)                           |
 
 ---
@@ -149,6 +154,13 @@ bun run lint
 bun run format
 ```
 
+### End-to-end tests
+
+```bash
+bunx playwright install chromium   # once
+bun run test:e2e
+```
+
 ---
 
 ## Project Structure
@@ -157,24 +169,32 @@ bun run format
 src/
 ├── main.tsx                         # Entry point
 ├── App.tsx                          # Layout, splitter, keyboard shortcuts
-├── theme.ts                         # Chakra UI theme configuration
 ├── types.ts                         # Shared types, gradient/warp definitions, palettes
+├── styles/
+│   ├── figui.css                    # Figma UI3 design tokens, vendored from FigUI
+│   └── app.css                      # Entry stylesheet, globals and overrides
 ├── components/
-│   ├── sections/
-│   │   ├── GradientCanvas.tsx       # WebGL canvas with interactive anchor points
-│   │   ├── ControlPanel.tsx         # Sidebar controls, sliders, and export
-│   │   ├── ColorList.tsx            # Sortable color list with drag-and-drop
-│   │   └── ImageColorPicker.tsx     # Upload image → extract palette dialog
-│   └── ui/
-│       ├── ColorAnchorPoint.tsx     # Draggable anchor point on canvas
-│       ├── ColorPicker.tsx          # Hex color picker popover
-│       ├── ColorSwatch.tsx          # Color circle with label and actions
-│       ├── GradientSelect.tsx       # Dropdown for gradient type / warp shape
-│       ├── DimensionInput.tsx       # Width / height number inputs
-│       ├── LabeledSlider.tsx        # Slider with label and live value
-│       ├── ActionIconButton.tsx     # Icon button with tooltip
-│       ├── AudioWaveOverlay.tsx     # Real-time mic waveform on canvas
-│       └── color-mode.tsx           # Light / dark mode toggle
+│   ├── ui/                          # Vendored FigUI primitives — see its README
+│   │   ├── button.tsx  select.tsx  slider.tsx  tooltip.tsx  separator.tsx
+│   │   ├── input/                   # TextInput, NumericInput, ColorInput, ColorChit…
+│   │   └── popover.tsx  dialog.tsx  collapsible.tsx   # ours, on Base UI
+│   ├── controls/                    # App composites built on those primitives
+│   │   ├── PanelSection.tsx         # Collapsible section with a header actions slot
+│   │   ├── ColorRow.tsx             # Chit, editable hex, drag handle, remove
+│   │   ├── ColorPicker.tsx          # Color row plus picker popover
+│   │   ├── ColorAnchorPoint.tsx     # Draggable anchor point on canvas
+│   │   ├── SelectRow.tsx            # Labelled inline dropdown
+│   │   ├── DimensionInput.tsx       # Width / height with scrub handles
+│   │   ├── LabeledSlider.tsx        # Slider with label and live value
+│   │   ├── ActionIconButton.tsx     # Icon button with tooltip and shortcut chips
+│   │   ├── AudioWaveOverlay.tsx     # Real-time mic waveform on canvas
+│   │   ├── Tooltip.tsx              # Tooltip wrapper
+│   │   └── theme.tsx                # Light / dark mode, the only next-themes consumer
+│   └── sections/
+│       ├── GradientCanvas.tsx       # WebGL canvas with interactive anchor points
+│       ├── ControlPanel.tsx         # The panel: four collapsible sections
+│       ├── ColorList.tsx            # Sortable color list and its header actions
+│       └── ImageColorPicker.tsx     # Upload image → extract palette dialog
 ├── store/
 │   └── gradientStore.ts            # Zustand store for all app state
 ├── hooks/
@@ -183,12 +203,20 @@ src/
 ├── lib/
 │   ├── colors.ts                   # Hex ↔ RGB conversion, shader packing
 │   ├── imageColors.ts              # Dominant-color extraction from images
-│   ├── export.ts                   # Offscreen canvas PNG export
+│   ├── export.ts                   # Offscreen render, then save
+│   ├── utils.ts                    # cn() class merger
 │   └── webgl.ts                    # Shader compilation, uniform management
 └── shaders/
     ├── shader.vert                 # Fullscreen quad vertex shader
     └── shader.frag                 # Gradient, warp, and noise fragment shader
+
+e2e/
+└── smoke.spec.ts                   # Playwright end-to-end suite
 ```
+
+`src/components/ui/` is vendored verbatim from [FigUI](https://figui.dev). Build
+on it from `controls/` rather than editing it in place; its own README has the
+refresh recipe and the patches to re-apply.
 
 ---
 
@@ -207,6 +235,7 @@ A GitHub Actions workflow (`.github/workflows/ci.yml`) runs the full quality gat
 1. **Lint** — `bun run lint`
 2. **Format check** — `bun run format:check`
 3. **Build** — `bun run build` (TypeScript type-check + Vite production build)
+4. **End-to-end** — `bun run test:e2e` (Playwright, against a production preview)
 
 Vercel also creates a **preview deployment** for every PR, with the preview URL posted directly on the pull request.
 

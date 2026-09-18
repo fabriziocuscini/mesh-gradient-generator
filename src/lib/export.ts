@@ -16,10 +16,17 @@ interface ExportOptions {
   quality?: number;
 }
 
-export async function exportImage(
+/**
+ * Renders the gradient offscreen at full export resolution.
+ *
+ * Split from the saving half on purpose: a Figma plugin cannot trigger a
+ * download from its iframe and has to hand the bytes to the plugin sandbox
+ * through figma.ui.postMessage, so only downloadBlob would need replacing.
+ */
+export async function renderToBlob(
   params: RenderParams,
   { mime, ext, quality }: ExportOptions,
-): Promise<void> {
+): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = params.resolution[0];
   canvas.height = params.resolution[1];
@@ -51,12 +58,26 @@ export async function exportImage(
 
   if (!blob) throw new Error(`Failed to create ${ext.toUpperCase()} blob`);
 
+  return blob;
+}
+
+/** Saves a blob to disk. The half a plugin build would swap out. */
+export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `mesh-gradient-${params.resolution[0]}x${params.resolution[1]}.${ext}`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+export async function exportImage(
+  params: RenderParams,
+  options: ExportOptions,
+): Promise<void> {
+  const blob = await renderToBlob(params, options);
+  const [w, h] = params.resolution;
+  downloadBlob(blob, `mesh-gradient-${w}x${h}.${options.ext}`);
 }

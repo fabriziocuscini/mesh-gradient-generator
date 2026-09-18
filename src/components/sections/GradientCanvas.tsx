@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { Box } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useWebGLRenderer } from "@/hooks/useWebGLRenderer";
 import { useGradientStore } from "@/store/gradientStore";
@@ -14,10 +13,10 @@ import {
   packPositionsForShader,
   hexToNormalizedRgb,
 } from "@/lib/colors";
-import { ColorAnchorPoint } from "@/components/ui/ColorAnchorPoint";
+import { ColorAnchorPoint } from "@/components/controls/ColorAnchorPoint";
 import { anchorInset } from "@/lib/anchorPosition";
 import { applyDrift, driftOffset, livePositionsRef } from "@/lib/drift";
-import { AudioWaveOverlay } from "@/components/ui/AudioWaveOverlay";
+import { AudioWaveOverlay } from "@/components/controls/AudioWaveOverlay";
 import type { RenderParams } from "@/lib/webgl";
 
 /**
@@ -319,12 +318,11 @@ export function GradientCanvas() {
   );
 
   return (
-    <Box
+    <div
       ref={containerRef}
-      position="relative"
-      width="100%"
-      height="100%"
-      bg="black"
+      className="relative h-full w-full bg-black-1000"
+      // Tailwind has no overflow-clip utility mapped here, and clip rather
+      // than hidden is what stops the anchors creating a scroll container.
       style={{ overflow: "clip" }}
       onMouseEnter={() => setShowAnchors(true)}
       onMouseLeave={() => {
@@ -465,6 +463,6 @@ export function GradientCanvas() {
           </motion.div>
         )}
       </AnimatePresence>
-    </Box>
+    </div>
   );
 }

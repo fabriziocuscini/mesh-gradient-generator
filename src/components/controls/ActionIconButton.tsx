@@ -1,13 +1,12 @@
-import {
-  Box,
-  HStack,
-  IconButton,
-  type IconButtonProps,
-} from "@chakra-ui/react";
+import type { ComponentProps } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Tooltip } from "./tooltip";
+import { Button } from "@/components/ui/button";
+import { Tooltip } from "./Tooltip";
 
-interface ActionIconButtonProps extends Omit<IconButtonProps, "children"> {
+type ActionIconButtonProps = Omit<
+  ComponentProps<typeof Button>,
+  "children" | "size"
+> & {
   icon: LucideIcon;
   label: string;
   /**
@@ -17,27 +16,20 @@ interface ActionIconButtonProps extends Omit<IconButtonProps, "children"> {
    */
   shortcut?: string;
   onClick: () => void;
-}
+};
 
 /**
- * Chips read backwards from the app's colour mode on purpose. The tooltip
- * sits on an inverted surface, so a light wash is what shows up on it while
- * the app itself is light.
+ * The tooltip surface is grey-900 in both colour modes, the way Figma's is, so
+ * a light wash is what reads on it either way.
  */
 function ShortcutKeys({ shortcut }: { shortcut: string }) {
   return shortcut.split("+").map((key) => (
-    <Box
+    <kbd
       key={key}
-      as="kbd"
-      fontFamily="inherit"
-      fontSize="0.9em"
-      lineHeight="1.2"
-      px="1"
-      borderRadius="xs"
-      bg={{ base: "whiteAlpha.400", _dark: "blackAlpha.400" }}
+      className="rounded-sm bg-white-200 px-1 font-[inherit] text-[0.9em] leading-[1.2]"
     >
       {key}
-    </Box>
+    </kbd>
   ));
 }
 
@@ -46,32 +38,34 @@ export function ActionIconButton({
   label,
   shortcut,
   onClick,
+  variant = "ghost",
   ...rest
 }: ActionIconButtonProps) {
   return (
     <Tooltip
       content={
         shortcut ? (
-          <HStack gap="1">
+          <span className="flex items-center gap-1">
             <span>{label}</span>
             <ShortcutKeys shortcut={shortcut} />
-          </HStack>
+          </span>
         ) : (
           label
         )
       }
-      openDelay={400}
-      closeDelay={0}
     >
-      <IconButton
+      <Button
         aria-label={label}
-        variant="ghost"
-        size="2xs"
+        variant={variant}
+        size="icon"
         onClick={onClick}
         {...rest}
       >
-        <Icon size={14} />
-      </IconButton>
+        {/* Lucide draws on a 24px grid with a 2px stroke. At 16px a stroke
+            of 1.5 renders as exactly 1px, which is the weight Figma's own
+            panel icons have. At the old 12px the artwork lost its detail. */}
+        <Icon className="size-4" strokeWidth={1.5} />
+      </Button>
     </Tooltip>
   );
 }
