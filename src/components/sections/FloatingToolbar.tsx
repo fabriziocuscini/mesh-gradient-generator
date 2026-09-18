@@ -29,8 +29,11 @@ const TAB = cn(
   // rounded-b-none is explicit: the Button's own rounded-md would otherwise
   // keep the bottom corners, and this is a panel peeking out, not a button.
   "flex h-5 w-30 items-center justify-center rounded-t-xl rounded-b-none",
-  "bg-white-1000 shadow-400 inset-ring inset-ring-black-100",
-  "dark:bg-grey-800 dark:inset-ring-white-200",
+  // A border on three sides, not the inset-ring the pills use: a ring draws on
+  // all four, and a line across the bottom makes the tab read as a floating
+  // strip rather than a panel half out of the bottom of the window.
+  "border border-b-0 border-black-100 bg-white-1000 shadow-400",
+  "dark:border-white-200 dark:bg-grey-800",
 );
 
 /** One surface shared by all three pills, copied from the popover's. */
