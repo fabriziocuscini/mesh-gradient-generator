@@ -24,7 +24,7 @@ import { SelectRow } from "@/components/controls/SelectRow";
 import { LabeledSlider } from "@/components/controls/LabeledSlider";
 import { DimensionInput } from "@/components/controls/DimensionInput";
 import { PanelSection } from "@/components/controls/PanelSection";
-import { ThemeToggleButton } from "@/components/controls/theme";
+import { ThemeModeControl } from "@/components/controls/theme";
 import { Tooltip } from "@/components/controls/Tooltip";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -136,25 +136,7 @@ export function ControlPanel() {
         <span className="typography-body-large-strong text-ink">
           Mesh Gradient
         </span>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <Tooltip content="GitHub repository">
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="GitHub repository"
-              render={
-                <a
-                  href="https://github.com/fabriziocuscini/mesh-gradient-generator"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              }
-            >
-              <Github className="size-4" strokeWidth={1.5} />
-            </Button>
-          </Tooltip>
-          <ThemeToggleButton />
-        </div>
+        <ThemeModeControl />
       </div>
 
       <Separator />
@@ -289,6 +271,31 @@ export function ControlPanel() {
         </PanelSection>
 
         <Separator />
+      </div>
+
+      <Separator />
+
+      <div className="flex h-9 shrink-0 items-center justify-between gap-2 px-4">
+        <span className="typography-body-small truncate text-ink-muted">
+          Fabrizio Cuscini · v{__APP_VERSION__}
+        </span>
+        <Tooltip content="GitHub repository">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6"
+            aria-label="GitHub repository"
+            render={
+              <a
+                href="https://github.com/fabriziocuscini/mesh-gradient-generator"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+          >
+            <Github className="size-4" strokeWidth={1.5} />
+          </Button>
+        </Tooltip>
       </div>
     </div>
   );

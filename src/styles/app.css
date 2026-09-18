@@ -78,6 +78,15 @@ body {
   background: var(--color-grey-800);
 }
 
+/* The colour mode change runs as a view transition, whose default animation
+   is a crossfade of the old screen into the new one. This only sets its pace;
+   theme.tsx decides when one runs. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: ease;
+}
+
 /* Keeps the app's z-index out of the way of Base UI's portalled popups. */
 .root {
   isolation: isolate;
