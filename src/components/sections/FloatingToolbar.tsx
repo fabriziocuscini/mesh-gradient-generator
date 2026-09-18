@@ -20,6 +20,15 @@ const PILL = cn(
   "dark:bg-grey-800 dark:inset-ring-white-200",
 );
 
+/** `hasPermission` is null until the browser has been asked, so that is the
+ *  one state where the tooltip warns about the prompt that follows a click. */
+function clapLabel(isListening: boolean, hasPermission: boolean | null) {
+  if (hasPermission === false) return "Microphone access denied";
+  if (isListening) return "Listening for claps";
+  if (hasPermission === null) return "Clap to randomize (requires mic access)";
+  return "Clap to randomize";
+}
+
 /**
  * The actions that act on the whole gradient, floating over the canvas the way
  * Figma floats its tool bar. They used to sit in the Colors panel header, where
@@ -71,12 +80,7 @@ export function FloatingToolbar() {
     }
   }, [isListening, hasPermission, requestPermission]);
 
-  const clapTooltip =
-    hasPermission === false
-      ? "Microphone access denied"
-      : isListening
-        ? "Listening for claps"
-        : "Clap to randomize";
+  const clapTooltip = clapLabel(isListening, hasPermission);
 
   const MicIcon = isListening ? Mic : MicOff;
 
