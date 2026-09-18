@@ -21,6 +21,14 @@ import { cn } from "@/lib/utils";
  *  keeps its 24px ones: this bar sits over the artwork, not in a dense list. */
 const TOOLBAR_BUTTON = "size-8";
 
+/** The collapsed bar: a tab flush with the bottom edge of the canvas, with
+ *  only its top corners rounded, the way a drawer pull looks. */
+const TAB = cn(
+  "flex h-7 w-18 items-center justify-center rounded-t-xl",
+  "bg-white-1000 shadow-400 inset-ring inset-ring-black-100",
+  "dark:bg-grey-800 dark:inset-ring-white-200",
+);
+
 /** One surface shared by both pills, copied from the popover's. */
 const PILL = cn(
   "flex items-center gap-0.5 rounded-xl p-1.5",
@@ -216,15 +224,12 @@ export function FloatingToolbar() {
         </div>
       </motion.div>
 
-      {/* The handle sits over the bar's own box, so it appears where the bar
-          was rather than jumping to a new place. */}
+      {/* -bottom-6 cancels the bar's own 24px inset, so the tab sits on the
+          bottom edge of the canvas rather than floating above it. */}
       <motion.div
-        className="absolute inset-x-0 bottom-0 flex justify-center"
+        className="absolute inset-x-0 -bottom-6 flex justify-center"
         inert={!collapsed}
-        animate={{
-          y: collapsed ? 0 : 40,
-          opacity: collapsed ? 1 : 0,
-        }}
+        animate={{ y: collapsed ? 0 : 28 }}
         transition={slide}
       >
         <Tooltip content="Show toolbar">
@@ -232,11 +237,7 @@ export function FloatingToolbar() {
             aria-label="Show toolbar"
             variant="ghost"
             size="icon"
-            className={cn(
-              PILL,
-              TOOLBAR_BUTTON,
-              "pointer-events-auto size-11 rounded-full",
-            )}
+            className={cn(TAB, "pointer-events-auto p-0")}
             onClick={() => setCollapsed(false)}
           >
             <ChevronUp className="size-4" strokeWidth={1.5} />
