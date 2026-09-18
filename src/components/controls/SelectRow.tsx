@@ -1,3 +1,4 @@
+import { Tooltip } from "@/components/controls/Tooltip";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,8 @@ export function SelectRow<T extends string | number>({
   options,
   onChange,
 }: SelectRowProps<T>) {
+  const selected = options.find((option) => option.value === value);
+
   return (
     <div className="flex h-6 items-center justify-between gap-2">
       <span className="typography-body-medium shrink-0 text-black-500 dark:text-white-500">
@@ -44,12 +47,15 @@ export function SelectRow<T extends string | number>({
           if (next != null) onChange(next);
         }}
       >
-        {/* Fixed 120px rather than filling the row. A full-width control only
-            reads well under its label, not beside it. flex-none undoes the
-            trigger's own flex-1. */}
-        <SelectTrigger className="w-30 flex-none" aria-label={label}>
-          <SelectValue />
-        </SelectTrigger>
+        {/* The trigger is a fixed 120px rather than filling the row, so a long
+            option truncates. The tooltip is what makes that safe: hover and the
+            full name appears after the provider's 400ms delay. flex-none undoes
+            the trigger's own flex-1. */}
+        <Tooltip content={selected?.label ?? ""} disabled={!selected}>
+          <SelectTrigger className="w-30 flex-none" aria-label={label}>
+            <SelectValue />
+          </SelectTrigger>
+        </Tooltip>
         <SelectContent align="end">
           {options.map((option) => (
             <SelectItem key={String(option.value)} value={option.value}>
