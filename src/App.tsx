@@ -6,9 +6,11 @@ import { FloatingToolbar } from "@/components/sections/FloatingToolbar";
 import { useGradientStore } from "@/store/gradientStore";
 import { useThemeToggle } from "@/components/controls/theme";
 
-const DEFAULT_SIDEBAR_WIDTH = 300;
 const MIN_SIDEBAR_WIDTH = 240;
 const MAX_SIDEBAR_WIDTH = 480;
+// The panel opens at its narrowest, so the canvas gets the rest. A
+// double-click on the divider brings it back here.
+const DEFAULT_SIDEBAR_WIDTH = MIN_SIDEBAR_WIDTH;
 
 function App() {
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
