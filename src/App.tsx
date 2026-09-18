@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { GradientCanvas } from "@/components/sections/GradientCanvas";
 import { ControlPanel } from "@/components/sections/ControlPanel";
+import { FloatingToolbar } from "@/components/sections/FloatingToolbar";
 import { useGradientStore } from "@/store/gradientStore";
 import { useThemeToggle } from "@/components/controls/theme";
 
@@ -96,8 +97,9 @@ function App() {
   return (
     <>
       <div className="flex h-screen overflow-hidden">
-        <div className="h-full min-w-0 flex-1">
+        <div className="relative h-full min-w-0 flex-1">
           <GradientCanvas />
+          <FloatingToolbar />
         </div>
 
         <div

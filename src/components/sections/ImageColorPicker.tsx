@@ -32,7 +32,13 @@ const DEFAULT_COLOR_COUNT = 5;
 const MAX_COLORS = 10;
 const MIN_COLORS = 2;
 
-export function ImageColorPicker() {
+interface ImageColorPickerProps {
+  /** Extra classes for the trigger button, so the floating toolbar can size
+   *  it at 32px while a panel header would leave it at 24px. */
+  triggerClassName?: string;
+}
+
+export function ImageColorPicker({ triggerClassName }: ImageColorPickerProps) {
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -134,8 +140,13 @@ export function ImageColorPicker() {
       <Tooltip content="Upload image">
         <DialogTrigger
           render={
-            <Button variant="ghost" size="icon" aria-label="Upload image">
-              <ImagePlus className="size-3" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className={triggerClassName}
+              aria-label="Upload image"
+            >
+              <ImagePlus className="size-4" strokeWidth={1.5} />
             </Button>
           }
         />

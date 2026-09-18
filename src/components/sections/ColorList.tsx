@@ -1,17 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
-import { Mic, MicOff, Palette, Pause, Play, Plus, Shuffle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useGradientStore } from "@/store/gradientStore";
 import { type ColorPoint } from "@/types";
 import { ColorPicker } from "@/components/controls/ColorPicker";
 import { ActionIconButton } from "@/components/controls/ActionIconButton";
-import { Tooltip } from "@/components/controls/Tooltip";
-import { Button } from "@/components/ui/button";
-import { ImageColorPicker } from "@/components/sections/ImageColorPicker";
 import { randomHexColor } from "@/lib/colors";
-import { useClapDetector, isWebAudioSupported } from "@/hooks/useClapDetector";
 
 const MAX_COLORS = 10;
 const MIN_COLORS = 2;
@@ -69,117 +64,22 @@ function SortableColorItem({
 }
 
 /**
- * The Colors section's header actions. Separate from the list so they can sit
- * in the collapsible header beside the title, the way Figma's panels do.
+ * The Colors section's header action. Everything else that used to live here
+ * now sits on the floating toolbar over the canvas, since those actions change
+ * the whole gradient rather than the swatch list.
  */
 export function ColorListActions() {
   const colors = useGradientStore((s) => s.colors);
   const addColor = useGradientStore((s) => s.addColor);
-  const randomizePositions = useGradientStore((s) => s.randomizePositions);
-  const randomizePalette = useGradientStore((s) => s.randomizePalette);
-  const setClapDetectionActive = useGradientStore(
-    (s) => s.setClapDetectionActive,
-  );
-  const isPlaying = useGradientStore((s) => s.isPlaying);
-  const togglePlayback = useGradientStore((s) => s.togglePlayback);
 
-  const [clapEnabled, setClapEnabled] = useState(false);
-  const [clapFlash, setClapFlash] = useState(false);
-  const flashTimeout = useRef<ReturnType<typeof setTimeout>>(null);
-
-  const handleClap = useCallback(() => {
-    useGradientStore.getState().randomizePositions();
-    setClapFlash(true);
-    if (flashTimeout.current) clearTimeout(flashTimeout.current);
-    flashTimeout.current = setTimeout(() => setClapFlash(false), 300);
-  }, []);
-
-  const { isListening, hasPermission, requestPermission } = useClapDetector({
-    onClap: handleClap,
-    enabled: clapEnabled,
-  });
-
-  useEffect(() => {
-    setClapDetectionActive(isListening);
-  }, [isListening, setClapDetectionActive]);
-
-  useEffect(() => {
-    return () => {
-      if (flashTimeout.current) clearTimeout(flashTimeout.current);
-    };
-  }, []);
-
-  const handleClapToggle = useCallback(async () => {
-    if (isListening) {
-      setClapEnabled(false);
-    } else if (hasPermission) {
-      setClapEnabled(true);
-    } else {
-      await requestPermission();
-      setClapEnabled(true);
-    }
-  }, [isListening, hasPermission, requestPermission]);
-
-  const clapTooltip =
-    hasPermission === false
-      ? "Microphone access denied"
-      : isListening
-        ? "Listening for claps"
-        : "Clap to randomize";
-
-  const MicIcon = isListening ? Mic : MicOff;
+  if (colors.length >= MAX_COLORS) return null;
 
   return (
-    <>
-      <ActionIconButton
-        icon={isPlaying ? Pause : Play}
-        label={isPlaying ? "Pause animation" : "Animate anchor points"}
-        shortcut="P"
-        onClick={togglePlayback}
-        variant={isPlaying ? "primary" : "ghost"}
-      />
-      {isWebAudioSupported && (
-        // The flash wrapper is outside the tooltip now: Base UI's trigger
-        // renders the button itself, so a motion.div in between would have
-        // become the trigger.
-        <motion.div
-          animate={clapFlash ? { scale: [1, 1.35, 1] } : {}}
-          transition={{ duration: 0.3 }}
-        >
-          <Tooltip content={clapTooltip}>
-            <Button
-              aria-label={clapTooltip}
-              variant={isListening ? "primary" : "ghost"}
-              size="icon"
-              onClick={handleClapToggle}
-              disabled={hasPermission === false}
-            >
-              <MicIcon className="size-3" />
-            </Button>
-          </Tooltip>
-        </motion.div>
-      )}
-      <ActionIconButton
-        icon={Shuffle}
-        label="Randomize positions"
-        shortcut="Space"
-        onClick={randomizePositions}
-      />
-      <ActionIconButton
-        icon={Palette}
-        label="Randomize palette"
-        shortcut="R"
-        onClick={randomizePalette}
-      />
-      <ImageColorPicker />
-      {colors.length < MAX_COLORS && (
-        <ActionIconButton
-          icon={Plus}
-          label="Add color"
-          onClick={() => addColor(randomHexColor())}
-        />
-      )}
-    </>
+    <ActionIconButton
+      icon={Plus}
+      label="Add color"
+      onClick={() => addColor(randomHexColor())}
+    />
   );
 }
 
