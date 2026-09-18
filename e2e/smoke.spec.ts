@@ -315,8 +315,11 @@ test("the image dialog extracts a palette", async ({ page }) => {
   await expect(page.locator('img[alt="Uploaded"]')).toBeVisible();
   await page.getByRole("button", { name: "Done", exact: true }).click();
 
+  // Poll: loading a palette replaces every row, and the outgoing ones stay in
+  // the DOM for their 150ms exit animation, so a count taken straight after
+  // the click sees the old list and the new one at once.
+  await expect.poll(async () => (await rowHexes(page)).length).toBe(5);
   const after = await rowHexes(page);
-  expect(after.length).toBe(5);
   // k-means runs a fixed 10 iterations, so a cluster can settle between two
   // bands. A majority landing exactly on the source colours is enough to show
   // the palette really came from the image.

@@ -35,9 +35,18 @@ export function LabeledSlider({
 }: LabeledSliderProps) {
   const snapshotTaken = useRef(false);
   const lastThumbDown = useRef(0);
+  const thumbHeld = useRef(false);
+  const pressDragged = useRef(false);
 
   const release = () => {
     snapshotTaken.current = false;
+    // A press that dragged the value is not the first half of a double-click.
+    // Without this, a quick drag followed by a click within DOUBLE_CLICK_MS
+    // paired up as one, so the reset fired on the wrong press and the real
+    // double-click that came next did nothing.
+    if (pressDragged.current) lastThumbDown.current = 0;
+    thumbHeld.current = false;
+    pressDragged.current = false;
   };
 
   const reset = () => {
@@ -64,6 +73,9 @@ export function LabeledSlider({
         step={step}
         value={value}
         onValueChange={(next) => {
+          // Only a press can drag. Arrow keys move the value too, and marking
+          // those would strand the flag until the next pointer release.
+          if (thumbHeld.current) pressDragged.current = true;
           if (!snapshotTaken.current && onChangeStart) {
             onChangeStart();
             snapshotTaken.current = true;
@@ -81,6 +93,8 @@ export function LabeledSlider({
             const isDouble = now - lastThumbDown.current < DOUBLE_CLICK_MS;
             // Zeroing on a hit stops a triple-click firing twice.
             lastThumbDown.current = isDouble ? 0 : now;
+            thumbHeld.current = true;
+            pressDragged.current = false;
             if (isDouble) reset();
           },
         }}
