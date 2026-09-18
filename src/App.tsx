@@ -105,12 +105,17 @@ function App() {
         </div>
 
         <div
-          className="w-[3px] shrink-0 cursor-col-resize bg-grey-200 transition-colors duration-150 hover:bg-grey-300 dark:bg-grey-600 dark:hover:bg-grey-500"
+          className="relative w-px shrink-0 cursor-col-resize bg-grey-200 transition-colors duration-150 hover:bg-grey-300 dark:bg-grey-600 dark:hover:bg-grey-500"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onDoubleClick={() => setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)}
-        />
+        >
+          {/* The line is 1px like every other stroke, which is too thin to
+              grab. This sits on top of it and takes 4px from each side. It is
+              a child, so it still hovers and drags the line itself. */}
+          <div className="absolute inset-y-0 -right-1 -left-1 cursor-col-resize" />
+        </div>
 
         {/* Width stays data rather than a class: a Figma plugin build pins one
             value and calls figma.ui.resize without touching a component. */}
