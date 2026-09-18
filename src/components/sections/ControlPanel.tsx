@@ -45,6 +45,12 @@ export function ControlPanel() {
 
   const setGradientTypeIndex = useGradientStore((s) => s.setGradientTypeIndex);
   const setWarpShapeIndex = useGradientStore((s) => s.setWarpShapeIndex);
+  const setPreviewGradientTypeIndex = useGradientStore(
+    (s) => s.setPreviewGradientTypeIndex,
+  );
+  const setPreviewWarpShapeIndex = useGradientStore(
+    (s) => s.setPreviewWarpShapeIndex,
+  );
   const setWarpRatio = useGradientStore((s) => s.setWarpRatio);
   const setWarpSize = useGradientStore((s) => s.setWarpSize);
   const setNoiseRatio = useGradientStore((s) => s.setNoiseRatio);
@@ -152,12 +158,14 @@ export function ControlPanel() {
             value={gradientTypeIndex}
             options={gradientOptions}
             onChange={setGradientTypeIndex}
+            onPreview={setPreviewGradientTypeIndex}
           />
           <SelectRow
             label="Warp Shape"
             value={warpShapeIndex}
             options={warpOptions}
             onChange={setWarpShapeIndex}
+            onPreview={setPreviewWarpShapeIndex}
           />
         </PanelSection>
 
