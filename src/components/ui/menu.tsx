@@ -3,7 +3,7 @@
    fades by the same amount. Re-apply on upgrade. */
 import { cn } from "@/lib/utils";
 import { Menu as BaseMenu } from "@base-ui/react";
-import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import * as React from "react";
 
 const Menu = BaseMenu.Root;
@@ -122,7 +122,11 @@ function MenuRadioItem({
       {...props}
     >
       <BaseMenu.RadioItemIndicator className="col-start-1 flex items-center justify-center">
-        <CircleIcon className="size-2 fill-current" />
+        {/* FIGUI PATCH - upstream marks the chosen radio item with a filled
+            dot, while a Select marks its chosen item with a tick. The app
+            uses both for the same job, one in a panel row and one in a
+            header menu, so they carry the same mark. Re-apply on upgrade. */}
+        <CheckIcon className="size-3" />
       </BaseMenu.RadioItemIndicator>
       <span className="col-start-2">{children}</span>
     </BaseMenu.RadioItem>
