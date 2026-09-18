@@ -248,6 +248,8 @@ export function FloatingToolbar() {
             className={cn(
               TAB,
               "pointer-events-auto p-0 hover:bg-white-1000 dark:hover:bg-grey-800",
+              // Half faded until the cursor or the keyboard reaches it.
+              "opacity-50 transition-opacity duration-150 hover:opacity-100 focus-visible:opacity-100",
             )}
             onClick={() => setCollapsed(false)}
           >
