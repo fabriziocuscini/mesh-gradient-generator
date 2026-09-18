@@ -89,8 +89,6 @@ export function ColorListActions() {
 
   return (
     <>
-      {/* The rule outlives a full list, so the menu stays put once the plus
-          button has gone. */}
       <Menu>
         <Tooltip content="How new colors are picked">
           <MenuTrigger
@@ -125,20 +123,21 @@ export function ColorListActions() {
           </MenuRadioGroup>
         </MenuContent>
       </Menu>
-      {colors.length < MAX_COLORS && (
-        <ActionIconButton
-          icon={Plus}
-          label="Add color"
-          onClick={() =>
-            addColor(
-              paletteHexColor(
-                colors.map((c) => c.hex),
-                colorStrategy,
-              ),
-            )
-          }
-        />
-      )}
+      {/* Greyed out at the ten-colour cap rather than taken away, so the
+          header keeps its shape and the limit is visible. */}
+      <ActionIconButton
+        icon={Plus}
+        label="Add color"
+        disabled={colors.length >= MAX_COLORS}
+        onClick={() =>
+          addColor(
+            paletteHexColor(
+              colors.map((c) => c.hex),
+              colorStrategy,
+            ),
+          )
+        }
+      />
     </>
   );
 }
