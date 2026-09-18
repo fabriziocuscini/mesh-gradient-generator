@@ -200,7 +200,9 @@ export const useGradientStore = create<GradientStore>((set) => ({
       const safe = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : "#888888";
       return {
         ...jump(state),
-        colors: [...state.colors, createColorPoint(safe)],
+        // The new swatch goes on top, where the + button that made it is,
+        // so it is the first row to hand rather than the last.
+        colors: [createColorPoint(safe), ...state.colors],
       };
     }),
 
