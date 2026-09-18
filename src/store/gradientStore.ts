@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { livePositionsRef } from "@/lib/drift";
+import { type ColorStrategy, DEFAULT_COLOR_STRATEGY } from "@/lib/colors";
 import {
   type ColorPoint,
   type ExportFormat,
@@ -147,6 +148,12 @@ export interface GradientStore {
   previewGradientTypeIndex: number | null;
   previewWarpShapeIndex: number | null;
 
+  /**
+   * The rule the + button follows when it picks a colour. A working
+   * preference, not part of the composition, so it stays out of the history.
+   */
+  colorStrategy: ColorStrategy;
+
   _past: UndoableState[];
   _future: UndoableState[];
 
@@ -154,6 +161,7 @@ export interface GradientStore {
   setWarpShapeIndex: (index: number) => void;
   setPreviewGradientTypeIndex: (index: number | null) => void;
   setPreviewWarpShapeIndex: (index: number | null) => void;
+  setColorStrategy: (strategy: ColorStrategy) => void;
   setWarpRatio: (value: number) => void;
   setWarpSize: (value: number) => void;
   setNoiseRatio: (value: number) => void;
@@ -199,6 +207,7 @@ export const useGradientStore = create<GradientStore>((set) => ({
   transitionNonce: 0,
   previewGradientTypeIndex: null,
   previewWarpShapeIndex: null,
+  colorStrategy: DEFAULT_COLOR_STRATEGY,
 
   _past: [],
   _future: [],
@@ -328,6 +337,8 @@ export const useGradientStore = create<GradientStore>((set) => ({
         colors: palette.map(createColorPoint),
       };
     }),
+
+  setColorStrategy: (strategy) => set({ colorStrategy: strategy }),
 
   setHighlightedColorId: (id) => set({ highlightedColorId: id }),
   setSelectedColorId: (id) =>
