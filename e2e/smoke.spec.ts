@@ -42,6 +42,34 @@ function rowHexes(page: Page) {
   );
 }
 
+/** The rows' top edges, joined, so two readings can be compared as one value. */
+function rowTops(page: Page) {
+  return page.evaluate(() =>
+    [...document.querySelectorAll('input[aria-label="Hex colour"]')]
+      .filter((i) => !i.closest("[data-base-ui-portal]"))
+      .map((i) => Math.round(i.getBoundingClientRect().top))
+      .join(),
+  );
+}
+
+/**
+ * A row grows from zero height over 150ms and new rows go on top, so every row
+ * below one keeps sliding down for a moment after its input is already in the
+ * DOM. A count taken from rowHexes says nothing about that, so wait for two
+ * readings of the geometry to agree before measuring anything for a drag.
+ */
+async function settleRows(page: Page) {
+  let previous = "";
+  await expect
+    .poll(async () => {
+      const tops = await rowTops(page);
+      const settled = tops === previous;
+      previous = tops;
+      return settled;
+    })
+    .toBe(true);
+}
+
 function warpReadout(page: Page) {
   return page.evaluate(() => {
     const label = [...document.querySelectorAll("span")].find(
@@ -202,6 +230,10 @@ test("colours can be typed, added, removed and reordered", async ({ page }) => {
   await expect.poll(rowCount).toBe(3);
   await page.getByRole("button", { name: "Add color" }).click();
   await expect.poll(rowCount).toBe(4);
+
+  // The last two rows are still growing into place, and the drag is measured
+  // in pixels, so read the coordinates only once the list has stopped moving.
+  await settleRows(page);
 
   const preDrag = await rowHexes(page);
   const rows = page.locator('input[aria-label="Hex colour"]');
