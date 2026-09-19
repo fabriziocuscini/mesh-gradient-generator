@@ -7,7 +7,9 @@ import prettier from "eslint-config-prettier";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  // .claude/worktrees holds checkouts that background agents work in. They are
+  // copies of this repo, so linting them reports every problem twice.
+  globalIgnores(["dist", ".claude"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
