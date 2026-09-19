@@ -161,6 +161,39 @@ bunx playwright install chromium   # once
 bun run test:e2e
 ```
 
+### Releasing
+
+Every change that people would notice carries a changeset, written as part of
+the pull request:
+
+```bash
+bun run changeset
+```
+
+That asks for the size of the bump and a line of prose, then writes a file into
+`.changeset/`. Writing the file by hand does the same job; `.changeset/README.md`
+shows the format.
+
+When it is time to cut a release, take the pending changesets and turn them into
+a version:
+
+```bash
+bun run release:version
+```
+
+That bumps `version` in `package.json`, moves the pending entries into
+`CHANGELOG.md` and deletes them from `.changeset/`. Commit the result, then tag
+it and write the GitHub release:
+
+```bash
+git tag -a v0.11.0 -m "v0.11.0"
+git push origin v0.11.0
+gh release create v0.11.0 --notes-from-tag
+```
+
+The app is private and is never published to npm, so `changeset publish` has no
+part in this.
+
 ---
 
 ## Project Structure

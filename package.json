@@ -11,6 +11,8 @@
     "format:check": "prettier --check .",
     "preview": "vite preview",
     "test:e2e": "playwright test",
+    "changeset": "changeset",
+    "release:version": "changeset version",
     "prepare": "husky"
   },
   "dependencies": {
@@ -36,6 +38,7 @@
     "*.{ts,tsx,json,html,css,md,yml}": "prettier --check"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@eslint/js": "^9.39.4",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
