@@ -17,9 +17,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
-    // The store starts the drift unless the system asks for less motion, and
-    // a canvas that never stops changing cannot be compared against itself.
-    // This also skips the crossfade, so a frame is either old or new.
+    // Skips the crossfade, so a frame is either old or new rather than a
+    // blend of both that cannot be compared against anything.
     reducedMotion: "reduce",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
