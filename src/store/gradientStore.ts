@@ -38,16 +38,6 @@ function randomWarpShapeIndex(): number {
   return WARP_SHAPES[Math.floor(Math.random() * WARP_SHAPES.length)].id;
 }
 
-/**
- * The gradient is in motion the moment it appears, unless the system asks for
- * reduced motion — then it waits for the play button, like the crossfade
- * waits to be skipped.
- */
-function initialPlayback(): boolean {
-  if (typeof window === "undefined" || !window.matchMedia) return true;
-  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 const MAX_HISTORY = 100;
 
 interface UndoableState {
@@ -203,7 +193,8 @@ export const useGradientStore = create<GradientStore>((set) => ({
   highlightedColorId: null,
   selectedColorId: null,
   clapDetectionActive: false,
-  isPlaying: initialPlayback(),
+  // The gradient arrives still; motion waits for the play button.
+  isPlaying: false,
   transitionNonce: 0,
   previewGradientTypeIndex: null,
   previewWarpShapeIndex: null,

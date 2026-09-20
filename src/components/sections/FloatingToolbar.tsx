@@ -62,13 +62,13 @@ const WHEEL_THRESHOLD = 4;
 function clapLabel(isListening: boolean, hasPermission: boolean | null) {
   if (hasPermission === false) return "Microphone access denied";
   if (isListening) return "Listening for claps";
-  if (hasPermission === null) return "Clap to randomize (requires mic access)";
-  return "Clap to randomize";
+  if (hasPermission === null) return "Clap to randomise (requires mic access)";
+  return "Clap to randomise";
 }
 
 /**
  * The actions that act on the whole gradient, floating over the canvas the way
- * Figma floats its tool bar. They used to sit in the Colors panel header, where
+ * Figma floats its tool bar. They used to sit in the Colours panel header, where
  * only adding a swatch really belonged.
  */
 export function FloatingToolbar() {
@@ -204,6 +204,13 @@ export function FloatingToolbar() {
         </div>
 
         <div className={cn(PILL, "pointer-events-auto")}>
+          <ActionIconButton
+            className={TOOLBAR_BUTTON}
+            icon={Shuffle}
+            label="Randomise positions"
+            shortcut="Space"
+            onClick={randomizePositions}
+          />
           {isWebAudioSupported && (
             // The flash wrapper is outside the tooltip: Base UI's trigger
             // renders the button itself, so a motion.div in between would have
@@ -228,15 +235,8 @@ export function FloatingToolbar() {
           )}
           <ActionIconButton
             className={TOOLBAR_BUTTON}
-            icon={Shuffle}
-            label="Randomize positions"
-            shortcut="Space"
-            onClick={randomizePositions}
-          />
-          <ActionIconButton
-            className={TOOLBAR_BUTTON}
             icon={Palette}
-            label="Randomize palette"
+            label="Randomise palette"
             shortcut="R"
             onClick={randomizePalette}
           />

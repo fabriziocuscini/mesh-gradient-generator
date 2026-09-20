@@ -2,7 +2,7 @@
 
 ![Mesh Gradient Generator](public/preview.png)
 
-A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 2. Design beautiful, organic gradients with full control over colors, blending styles, warp distortions, and noise — then export at any resolution as PNG, JPEG, or WebP.
+A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 2. Design beautiful, organic gradients with full control over colours, blending styles, warp distortions, and noise — then export at any resolution as PNG, JPEG, or WebP.
 
 **[Live Demo](https://mesh-gradient.fabstudio.co.uk/)**
 
@@ -15,44 +15,44 @@ A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 
 
 ## Features
 
-### Color Management
+### Colour Management
 
-- **2–10 color stops** — add or remove individual colors from the control panel
-- **Editable hex** — type a hex straight into any color row, or click its swatch (or the matching anchor point on the canvas) to open the full picker
-- **Drag to reorder** — rearrange colors in the list via drag-and-drop handles to control layering
+- **2–10 colour stops** — add or remove individual colours from the control panel
+- **Editable hex** — type a hex straight into any colour row, or click its swatch (or the matching anchor point on the canvas) to open the full picker
+- **Drag to reorder** — rearrange colours in the list via drag-and-drop handles to control layering
 - **Preset palettes** — starts with one of four curated palettes, randomised on load
-- **Upload an image** — drop or upload any photo to automatically extract a palette; drag anchor points over the image to sample exact colors, then apply the result as your gradient
+- **Upload an image** — drop or upload any photo to automatically extract a palette; drag anchor points over the image to sample exact colours, then apply the result as your gradient
 
 ### Clap Detection
 
-- **Clap to randomise** — enable mic access, then clap your hands to shuffle all anchor positions instantly
+- **Clap to randomise** — enable mic access, then clap your hands to randomise all anchor positions instantly
 - **Audio wave overlay** — a real-time waveform visualisation appears on the canvas while the microphone is active
-- **Toggle on/off** — click the mic icon in the Colors header to start or stop listening; uses the Web Audio API with spectral-flatness analysis to distinguish claps from background noise
+- **Toggle on/off** — click the mic icon in the floating toolbar to start or stop listening; uses the Web Audio API with spectral-flatness analysis to distinguish claps from background noise
 
 ### Canvas Interactivity
 
-- **Drag anchor points** — click and drag any color's anchor point directly on the canvas to reposition it in real time
+- **Drag anchor points** — click and drag any colour's anchor point directly on the canvas to reposition it in real time
 - **Hover to reveal** — anchor points appear when you hover over the canvas and fade out when you leave
-- **Highlighted feedback** — hovering a color swatch in the panel highlights its corresponding anchor on the canvas
+- **Highlighted feedback** — hovering a colour swatch in the panel highlights its corresponding anchor on the canvas
 - **Smooth transitions** — randomising, switching gradient type or warp shape, and undo/redo crossfade between compositions instead of snapping; direct edits such as dragging stay instant, and the fade is skipped when the system prefers reduced motion
 
 ### Animation
 
-- **Plays on arrival** — the anchor points are already drifting on slow, desynchronised orbits when the tool loads; press the pause button in the Colors header or hit `P` to stop them, and again to resume. When the system prefers reduced motion the gradient starts still instead
+- **Starts still** — the gradient arrives at rest; press the play button in the floating toolbar or hit `P` to set the anchor points drifting on slow, desynchronised orbits, and again to stop them
 - **Pause keeps the result** — stopping adopts wherever the anchors landed, and a single undo returns to the composition that was playing
-- **Holds while you work** — motion stops while the pointer is on an anchor (its dot on the canvas or its row in the list), while you drag one, and while its color picker is open, then resumes from where it froze once you move away
+- **Holds while you work** — motion stops while the pointer is on an anchor (its dot on the canvas or its row in the list), while you drag one, and while its colour picker is open, then resumes from where it froze once you move away
 
 ### Gradient Styles
 
 Choose from five distinct gradient blending algorithms:
 
-| Style            | Description                                                |
-| ---------------- | ---------------------------------------------------------- |
-| **Sharp Bézier** | Enhanced Gaussian falloff for crisp, defined color regions |
-| **Soft Bézier**  | Smooth Gaussian-like blending between colors               |
-| **Mesh Static**  | Fixed 3×3 grid interpolation for structured gradients      |
-| **Mesh Grid**    | Color positions mapped onto a 3×3 grid for organic layouts |
-| **Simple**       | Distance-based blending for classic radial mixing          |
+| Style            | Description                                                 |
+| ---------------- | ----------------------------------------------------------- |
+| **Sharp Bézier** | Enhanced Gaussian falloff for crisp, defined colour regions |
+| **Soft Bézier**  | Smooth Gaussian-like blending between colours               |
+| **Mesh Static**  | Fixed 3×3 grid interpolation for structured gradients       |
+| **Mesh Grid**    | Colour positions mapped onto a 3×3 grid for organic layouts |
+| **Simple**       | Distance-based blending for classic radial mixing           |
 
 ### Warp & Distortion
 
@@ -80,7 +80,7 @@ Fine-tune distortion with three sliders:
 | --------------- | -------------------------------------- |
 | `Space`         | Randomise all anchor positions         |
 | `Shift`+`Space` | Randomise anchor positions and effects |
-| `R`             | Randomise the entire color palette     |
+| `R`             | Randomise the entire colour palette    |
 | `P`             | Play / pause the anchor animation      |
 | `D`             | Toggle light / dark mode               |
 
@@ -91,7 +91,7 @@ Clap detection also randomises anchor positions when the microphone is enabled.
 ### Appearance
 
 - **Figma plugin look** — the control panel is built from [FigUI](https://figui.dev), a copy-paste collection of Figma UI3 components, so it uses Figma's own type scale, greys, blue and 24px row rhythm
-- **Collapsible sections** — Gradient, Effects, Colors and Export each fold away, with their actions staying on the header
+- **Collapsible sections** — Gradient, Effects, Colours and Export each fold away, with their actions staying on the header
 - **Light and dark mode** — toggle via the header button or press `D`
 - **Resizable layout** — the canvas and control panel are split with a draggable divider; double-click the handle to reset
 
@@ -214,7 +214,7 @@ src/
 │   ├── controls/                    # App composites built on those primitives
 │   │   ├── PanelSection.tsx         # Collapsible section with a header actions slot
 │   │   ├── ColorRow.tsx             # Chit, editable hex, drag handle, remove
-│   │   ├── ColorPicker.tsx          # Color row plus picker popover
+│   │   ├── ColorPicker.tsx          # Colour row plus picker popover
 │   │   ├── ColorAnchorPoint.tsx     # Draggable anchor point on canvas
 │   │   ├── SelectRow.tsx            # Labelled inline dropdown
 │   │   ├── DimensionInput.tsx       # Width / height with scrub handles
@@ -226,7 +226,7 @@ src/
 │   └── sections/
 │       ├── GradientCanvas.tsx       # WebGL canvas with interactive anchor points
 │       ├── ControlPanel.tsx         # The panel: four collapsible sections
-│       ├── ColorList.tsx            # Sortable color list and its header actions
+│       ├── ColorList.tsx            # Sortable colour list and its header actions
 │       └── ImageColorPicker.tsx     # Upload image → extract palette dialog
 ├── store/
 │   └── gradientStore.ts            # Zustand store for all app state
@@ -278,6 +278,6 @@ Vercel automatically deploys to production at [mesh-gradient.fabstudio.co.uk](ht
 
 ---
 
-## License
+## Licence
 
 MIT

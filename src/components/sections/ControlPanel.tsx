@@ -178,7 +178,7 @@ export function ControlPanel() {
           actions={
             <ActionIconButton
               icon={Shuffle}
-              label="Randomize effects"
+              label="Randomise effects"
               shortcut="Shift+Space"
               onClick={randomizeEffects}
             />
@@ -219,7 +219,7 @@ export function ControlPanel() {
         <Separator />
 
         <PanelSection
-          title="Colors"
+          title="Colours"
           open={openSections.colors}
           onOpenChange={toggle("colors")}
           actions={<ColorListActions />}
