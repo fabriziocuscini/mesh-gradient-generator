@@ -62,8 +62,8 @@ const WHEEL_THRESHOLD = 4;
 function clapLabel(isListening: boolean, hasPermission: boolean | null) {
   if (hasPermission === false) return "Microphone access denied";
   if (isListening) return "Listening for claps";
-  if (hasPermission === null) return "Clap to shuffle (requires mic access)";
-  return "Clap to shuffle";
+  if (hasPermission === null) return "Clap to randomise (requires mic access)";
+  return "Clap to randomise";
 }
 
 /**
@@ -207,7 +207,7 @@ export function FloatingToolbar() {
           <ActionIconButton
             className={TOOLBAR_BUTTON}
             icon={Shuffle}
-            label="Shuffle positions"
+            label="Randomise positions"
             shortcut="Space"
             onClick={randomizePositions}
           />

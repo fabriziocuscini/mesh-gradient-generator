@@ -25,7 +25,7 @@ A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 
 
 ### Clap Detection
 
-- **Clap to shuffle** — enable mic access, then clap your hands to shuffle all anchor positions instantly
+- **Clap to randomise** — enable mic access, then clap your hands to randomise all anchor positions instantly
 - **Audio wave overlay** — a real-time waveform visualisation appears on the canvas while the microphone is active
 - **Toggle on/off** — click the mic icon in the floating toolbar to start or stop listening; uses the Web Audio API with spectral-flatness analysis to distinguish claps from background noise
 
@@ -34,7 +34,7 @@ A real-time, GPU-accelerated mesh gradient generator built with React and WebGL 
 - **Drag anchor points** — click and drag any colour's anchor point directly on the canvas to reposition it in real time
 - **Hover to reveal** — anchor points appear when you hover over the canvas and fade out when you leave
 - **Highlighted feedback** — hovering a colour swatch in the panel highlights its corresponding anchor on the canvas
-- **Smooth transitions** — shuffling, switching gradient type or warp shape, and undo/redo crossfade between compositions instead of snapping; direct edits such as dragging stay instant, and the fade is skipped when the system prefers reduced motion
+- **Smooth transitions** — randomising, switching gradient type or warp shape, and undo/redo crossfade between compositions instead of snapping; direct edits such as dragging stay instant, and the fade is skipped when the system prefers reduced motion
 
 ### Animation
 
@@ -76,17 +76,17 @@ Fine-tune distortion with three sliders:
 
 ### Keyboard Shortcuts
 
-| Key             | Action                               |
-| --------------- | ------------------------------------ |
-| `Space`         | Shuffle all anchor positions         |
-| `Shift`+`Space` | Shuffle anchor positions and effects |
-| `R`             | Randomise the entire colour palette  |
-| `P`             | Play / pause the anchor animation    |
-| `D`             | Toggle light / dark mode             |
+| Key             | Action                                 |
+| --------------- | -------------------------------------- |
+| `Space`         | Randomise all anchor positions         |
+| `Shift`+`Space` | Randomise anchor positions and effects |
+| `R`             | Randomise the entire colour palette    |
+| `P`             | Play / pause the anchor animation      |
+| `D`             | Toggle light / dark mode               |
 
 All shortcuts are disabled while typing in input fields, and ignored when a modifier such as `Cmd` or `Ctrl` is held. Each one is also shown in the tooltip of the button it belongs to.
 
-Clap detection also shuffles anchor positions when the microphone is enabled.
+Clap detection also randomises anchor positions when the microphone is enabled.
 
 ### Appearance
 

@@ -178,7 +178,7 @@ export function ControlPanel() {
           actions={
             <ActionIconButton
               icon={Shuffle}
-              label="Shuffle effects"
+              label="Randomise effects"
               shortcut="Shift+Space"
               onClick={randomizeEffects}
             />
