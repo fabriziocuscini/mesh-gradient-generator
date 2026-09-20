@@ -1,7 +1,7 @@
 import chroma from "chroma-js";
 
 /**
- * Converts a hex color string to normalized RGB values (0-1 range).
+ * Converts a hex colour string to normalised RGB values (0-1 range).
  */
 export function hexToNormalizedRgb(hex: string): [number, number, number] {
   const clean = (hex || "#000000").replace("#", "");
@@ -16,8 +16,8 @@ export function hexToNormalizedRgb(hex: string): [number, number, number] {
 }
 
 /**
- * Packs an array of hex colors into a flat Float32Array of normalized RGB triplets.
- * Always outputs 30 floats (10 colors * 3 channels) to match the shader's u_colors[10].
+ * Packs an array of hex colours into a flat Float32Array of normalised RGB triplets.
+ * Always outputs 30 floats (10 colours * 3 channels) to match the shader's u_colors[10].
  */
 export function packColorsForShader(hexColors: string[]): Float32Array {
   const data = new Float32Array(30);

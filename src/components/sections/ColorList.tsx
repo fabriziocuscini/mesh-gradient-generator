@@ -77,7 +77,7 @@ function SortableColorItem({
 }
 
 /**
- * The Colors section's header action. Everything else that used to live here
+ * The Colours section's header action. Everything else that used to live here
  * now sits on the floating toolbar over the canvas, since those actions change
  * the whole gradient rather than the swatch list.
  */
@@ -90,11 +90,11 @@ export function ColorListActions() {
   return (
     <>
       <Menu>
-        <Tooltip content="How new colors are picked">
+        <Tooltip content="How new colours are picked">
           <MenuTrigger
             render={
               <Button
-                aria-label="How new colors are picked"
+                aria-label="How new colours are picked"
                 variant="ghost"
                 size="icon"
               />
@@ -127,7 +127,7 @@ export function ColorListActions() {
           header keeps its shape and the limit is visible. */}
       <ActionIconButton
         icon={Plus}
-        label="Add color"
+        label="Add colour"
         disabled={colors.length >= MAX_COLORS}
         onClick={() =>
           addColor(

@@ -84,7 +84,7 @@ export function ColorRow({
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Remove color"
+          aria-label="Remove colour"
           className="size-6 shrink-0 text-ink-secondary"
           onClick={onRemove}
         >

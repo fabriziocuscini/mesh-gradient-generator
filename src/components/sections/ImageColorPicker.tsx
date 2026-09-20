@@ -235,7 +235,7 @@ export function ImageColorPicker({ triggerClassName }: ImageColorPickerProps) {
                   disabled={anchors.length <= MIN_COLORS}
                 >
                   <Minus />
-                  Color
+                  Colour
                 </Button>
                 <Button
                   variant="secondary"
@@ -244,7 +244,7 @@ export function ImageColorPicker({ triggerClassName }: ImageColorPickerProps) {
                   disabled={anchors.length >= MAX_COLORS}
                 >
                   <Plus />
-                  Color
+                  Colour
                 </Button>
               </div>
               <Button variant="primary" size="large" onClick={handleDone}>

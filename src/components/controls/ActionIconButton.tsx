@@ -12,7 +12,7 @@ type ActionIconButtonProps = Omit<
   /**
    * Keyboard shortcut for this action — "P", or "Shift+Space" for a chord.
    * It reaches the tooltip only: the aria-label stays the plain action,
-   * since a screen reader announcing "Randomize palette R" helps nobody.
+   * since a screen reader announcing "Randomise palette R" helps nobody.
    */
   shortcut?: string;
   onClick: () => void;

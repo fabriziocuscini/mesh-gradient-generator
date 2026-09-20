@@ -208,27 +208,27 @@ test("colours can be typed, added, removed and reordered", async ({ page }) => {
 
   for (let guard = 0; (await rowCount()) < 10 && guard < 12; guard++) {
     const n = await rowCount();
-    await page.getByRole("button", { name: "Add color" }).click();
+    await page.getByRole("button", { name: "Add colour" }).click();
     await expect.poll(rowCount).toBe(n + 1);
   }
   expect(await rowCount()).toBe(10);
   // At the cap the button stays on screen and greys out, so the header keeps
   // its shape.
-  await expect(page.getByRole("button", { name: "Add color" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Add colour" })).toBeDisabled();
 
   for (let guard = 0; (await rowCount()) > 2 && guard < 12; guard++) {
     const n = await rowCount();
-    await page.getByRole("button", { name: "Remove color" }).first().click();
+    await page.getByRole("button", { name: "Remove colour" }).first().click();
     await expect.poll(rowCount).toBe(n - 1);
   }
   expect(await rowCount()).toBe(2);
-  await expect(page.getByRole("button", { name: "Remove color" })).toHaveCount(
+  await expect(page.getByRole("button", { name: "Remove colour" })).toHaveCount(
     0,
   );
 
-  await page.getByRole("button", { name: "Add color" }).click();
+  await page.getByRole("button", { name: "Add colour" }).click();
   await expect.poll(rowCount).toBe(3);
-  await page.getByRole("button", { name: "Add color" }).click();
+  await page.getByRole("button", { name: "Add colour" }).click();
   await expect.poll(rowCount).toBe(4);
 
   // The last two rows are still growing into place, and the drag is measured

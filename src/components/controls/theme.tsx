@@ -86,7 +86,7 @@ export function ThemeModeControl() {
     <SegmentedControl
       value={theme}
       onValueChange={(value) => crossfade(() => setTheme(value as ThemeChoice))}
-      aria-label="Color mode"
+      aria-label="Colour mode"
     >
       {CHOICES.map(({ value, icon: Icon, label }) => (
         <Tooltip key={value} content={label}>
